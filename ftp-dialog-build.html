@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<body>
+<head>
+  <link rel="stylesheet" type="text/css" href="css/bootstrap.css">
+</head>
+<div class="ftp-dialog modal">
+  <div class="modal-header" style="background-color:rgb(60,63,65);">
+    <h4 class="dialog-title" style="color:white;">Sync to FTP Server</h4>
+  </div>
+  <div class="modal-body">
+    <form class="form-horizontal">
+      <div class="control-group">
+        <label class="control-label" for="host">Server</label>
+        <div class="controls">
+          <input class="span3" type="text" id="host" placeholder="localhost">
+          <div class="input-prepend" style="padding-left:10px;">
+            <span class="add-on">Port</span>
+            <input class="span1" style="width:30px;" type="text" id="port" placeholder="21">
+          </div>
+        </div>
+      </div>
+      <div class="control-group">
+        <label class="control-label">Username</label>
+        <div class="controls">
+          <input type="text" id="username">
+        </div>
+      </div>
+      <div class="control-group">
+        <label class="control-label">Password</label>
+        <div class="controls">
+          <input type="password" id="pwd">
+        </div>
+      </div>
+      <div class="control-group">
+        <label class="control-label">Remote root</label>
+        <div class="controls">
+          <input type="text" id="remoteroot">
+        </div>
+      </div>
+
+      <div class="control-group">
+        <div class="controls">
+        <button class="dialog-button btn primary" data-button-id="ok">Upload</button>
+        </div>
+      </div>
+    </form>
+  </div>
+  <div class="modal-footer">
+      <span class="spinner spin pull-left"></span>
+    <p class="pull-left">230 Connected</p>
+      <button class="dialog-button btn primary" data-button-id="cancel">Cancel</button>
+
+  </div>
+</div>
+</body>
+</html>
