@@ -52,40 +52,25 @@ define(function (require, exports, module) {
         });
     }
     
-    
-//    function readSettings() {
-//        var destinationDir = ProjectManager.getProjectRoot().fullPath;
-//        var fileEntry = new FileSystem.FileEntry(destinationDir + ".remotesettings");
-//        if (fileEntry) {
-//            var readSettingsPromise = FileUtils.readAsText(fileEntry);
-//        
-//            readSettingsPromise.done(function (result) {
-//                //remotesettings file does exist, read in JSON into object                
-//                if (result) {
-//                    toggleRemoteBrowserAvailability(true);
-//                    projectFtpDetails = $.parseJSON(result);
-//                    if(projectFtpDetails.protocol === "sftp"){
-//                        toggleRemoteBrowserAvailability(false);    
-//                    }else{
-//                        toggleRemoteBrowserAvailability(true);    
-//                    }                        
-//                }
-//            });
-//            readSettingsPromise.fail(function (err) {
-//                //remotesettings file does not exist
-//                projectFtpDetails.server = "";
-//                projectFtpDetails.protocol = "";
-//                projectFtpDetails.port = 21;
-//                projectFtpDetails.username = "";
-//                projectFtpDetails.password = "";
-//                projectFtpDetails.localpath = "";
-//                projectFtpDetails.remotepath = "";
-//                projectFtpDetails.uploadOnSave = false;
-//                
-//                toggleRemoteBrowserAvailability(false);
-//            });
-//        }
-//    }
+    // pull settings from .ftplitesettings
+    function readSettings() {
+        var destinationDir = ProjectManager.getProjectRoot().fullPath;
+        var fileEntry = new FileSystem.FileEntry(destinationDir + ".ftplitesettings");
+        if (fileEntry) {
+            var readSettingsPromise = FileUtils.readAsText(fileEntry);
+        
+            readSettingsPromise.done(function (result) {
+                //remotesettings file does exist, read in JSON into object                
+                if (result) {
+                    ftpSettings = $.parseJSON(result);
+                }
+            });
+            readSettingsPromise.fail(function (err) {
+                //remotesettings file does not exist so
+                // we simply use the default values
+            });
+        }
+    }
 
     
     function showFtpDialog() {
@@ -94,23 +79,29 @@ define(function (require, exports, module) {
             $baseUrlControl;
 
         var templateVars = {
-            title: "Enter a URL to get",
-            label: "URL:",
-            baseUrl: "http://",
+            host: ftpSettings.host,
+            port: ftpSettings.port,
+            user: ftpSettings.user, // don't populate pwd field
+            remoteroot: ftpSettings.remoteRoot,
             Strings: Strings
         };
         
-        dialog = Dialogs.showModalDialogUsingTemplate(Mustache.render(mainDialog, templateVars));
+        dialog = Dialogs.showModalDialogUsingTemplate(Mustache.render(mainDialog, templateVars), true);
         dialog.done(function (id) {
             if (id === Dialogs.DIALOG_BTN_OK) {
-                // grab data and call upload
+                // save data and call upload
                 console.log('clicked on OK');
+                saveSettings();
+                
+                ftpSettings.host = $("#host");
+                ftpSettings.port = $("#port");
+                ftpSettings.user = $("#user");
+                ftpSettings.pwd = $("#pwd");
+                ftpSettings.remoteRoot = $("#remoteroot");
+                console.log(ftpSettings);
             }
         });
         
-        // give focus to url text
-//        $baseUrlControl = dialog.getElement().find(":input");
-//        $baseUrlControl.focus();
 
         return dialog;
     }
@@ -194,7 +185,7 @@ define(function (require, exports, module) {
         // Call all the helper functions in order
         chain(connect, loadFtpDomain, logMemory);
         
-        saveSettings();
+        readSettings();
         
         console.log('binding Alt-F');
         CommandManager.register("ftplite", COMMAND_ID2, callFtpUpload);
