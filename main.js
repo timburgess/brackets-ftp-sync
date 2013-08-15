@@ -41,7 +41,7 @@ define(function (require, exports, module) {
     };
 
 
-    // save settings used in dialog so we can populate dialog on call    
+    // save settings used in dialog so we can populate future dialog    
     function saveSettings() {
         
         var destinationDir = ProjectManager.getProjectRoot().fullPath;
@@ -55,28 +55,49 @@ define(function (require, exports, module) {
     // pull settings from .ftplitesettings
     function readSettings() {
         var destinationDir = ProjectManager.getProjectRoot().fullPath;
-        var fileEntry = new FileSystem.FileEntry(destinationDir + ".ftplitesettings");
-        if (fileEntry) {
-            var readSettingsPromise = FileUtils.readAsText(fileEntry);
+
+        FileSystem.resolveNativeFileSystemPath(destinationDir + ".ftplitesettings", function (fileEntry) {
+            FileUtils.readAsText(fileEntry).done(function (text) {
+                // settings file exists so parse
+                ftpSettings = $.parseJSON(text);
+            }).fail(function (error) {
+                // file apparently existed but we can't read it - ignore
+            });
+        }, function (error) {
+            console.log("no existing ftp settings");
+        });
+    }
+    
+    function handleOk() {
+        console.log('handling ok');
+        // get input values and save settings
+
+        var $dlg = $(".ftp-dialog.instance");
+        ftpSettings.host = $dlg.find("#host").val();
+        ftpSettings.port = $dlg.find("#port").val();
+        ftpSettings.user = $dlg.find("#user").val();
+        ftpSettings.pwd = $dlg.find("#pwd").val();
+        ftpSettings.remoteRoot = $dlg.find("#remoteroot").val();
+
+        saveSettings();
         
-            readSettingsPromise.done(function (result) {
-                //remotesettings file does exist, read in JSON into object                
-                if (result) {
-                    ftpSettings = $.parseJSON(result);
-                }
-            });
-            readSettingsPromise.fail(function (err) {
-                //remotesettings file does not exist so
-                // we simply use the default values
-            });
-        }
+        // determine the local root
+        ftpSettings.localRoot = ProjectManager.getProjectRoot().fullPath;
+
+        // call ftp upload
+        callFtpUpload();
+        
+        Dialogs.cancelModalDialogIfOpen("ftp-dialog");
+    }
+        
+    function handleCancel() {
+        console.log('handling cancel');
+        Dialogs.cancelModalDialogIfOpen("ftp-dialog");
     }
 
     
+    // show the ftp dialog and get references    
     function showFtpDialog() {
-
-        var dialog,
-            $baseUrlControl;
 
         var templateVars = {
             host: ftpSettings.host,
@@ -86,24 +107,14 @@ define(function (require, exports, module) {
             Strings: Strings
         };
         
-        dialog = Dialogs.showModalDialogUsingTemplate(Mustache.render(mainDialog, templateVars), true);
-        dialog.done(function (id) {
-            if (id === Dialogs.DIALOG_BTN_OK) {
-                // save data and call upload
-                console.log('clicked on OK');
-                saveSettings();
-                
-                ftpSettings.host = $("#host");
-                ftpSettings.port = $("#port");
-                ftpSettings.user = $("#user");
-                ftpSettings.pwd = $("#pwd");
-                ftpSettings.remoteRoot = $("#remoteroot");
-                console.log(ftpSettings);
-            }
-        });
-        
+        Dialogs.showModalDialogUsingTemplate(Mustache.render(mainDialog, templateVars), false);
 
-        return dialog;
+        // focus to host input and add button handlers
+        var $dlg = $(".ftp-dialog.instance");
+        $dlg.find(".host").focus();
+        $dlg.find(".dialog-button[data-button-id='ok']").on("click", handleOk);
+        $dlg.find(".dialog-button[data-button-id='cancel']").on("click", handleCancel);
+
     }
 
     
@@ -191,10 +202,10 @@ define(function (require, exports, module) {
         CommandManager.register("ftplite", COMMAND_ID2, callFtpUpload);
         KeyBindingManager.addBinding(COMMAND_ID2, "Alt-F", "mac");
 
-        console.log('binding Alt-W');
+        console.log('binding Ctrl-W');
         CommandManager.register("ftplitedialog", COMMAND_ID, showFtpDialog);
-        KeyBindingManager.addBinding(COMMAND_ID, "Alt-W", "mac");
-        KeyBindingManager.addBinding(COMMAND_ID, "Alt-W", "win");
+        KeyBindingManager.addBinding(COMMAND_ID, "Ctrl-W", "mac");
+        KeyBindingManager.addBinding(COMMAND_ID, "Ctrl-W", "win");
         
 
     });
