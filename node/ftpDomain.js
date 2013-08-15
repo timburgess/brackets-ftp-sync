@@ -78,7 +78,9 @@ maxerr: 50, node: true, white: true */
                 if (err.code !== 550) {
                     console.log('remote mkdir failed:' + err);
                 }
-            } else { console.log('created remote dir ' + remotePath); }
+            } else {
+                _domainManager.emitEvent("ftplite", "mkdir", "created directory " + remotePath);
+                console.log('created remote dir ' + remotePath); }
             return series(ops.shift());
         });
     }
@@ -97,6 +99,7 @@ maxerr: 50, node: true, white: true */
                     console.log('socket error:' + err);
                 });
                 read.on("end", function() {
+                    _domainManager.emitEvent("ftplite", "uploaded", "uploaded " + remotePath);
                     console.log('uploaded ' + remotePath);
                     return series(ops.shift());
                 });
@@ -259,10 +262,23 @@ maxerr: 50, node: true, white: true */
                 type: "string",
                 description: "result"}]
         );
-
         DomainManager.registerEvent(
             "ftplite",
             "disconnected",
+            [{  name: "result",
+                type: "string",
+                description: "result"}]
+        );
+        DomainManager.registerEvent(
+            "ftplite",
+            "uploaded",
+            [{  name: "result",
+                type: "string",
+                description: "result"}]
+        );
+        DomainManager.registerEvent(
+            "ftplite",
+            "mkdir",
             [{  name: "result",
                 type: "string",
                 description: "result"}]

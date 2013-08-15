@@ -87,7 +87,7 @@ define(function (require, exports, module) {
         // call ftp upload
         callFtpUpload();
         
-        //Dialogs.cancelModalDialogIfOpen("ftp-dialog");
+        // dialog closes on recipt of disconnect event
     }
         
     // handle cancel button
@@ -149,18 +149,25 @@ define(function (require, exports, module) {
     
     // general event handler of node-side events
     function handleEvent(event, msg) {
-        console.log("[event]" + event.namespace + " " + msg);
+
         var $dlg = $(".ftp-dialog.instance");
-        var $status = $dlg.find("#status");
 //        debugger;
+        if (event.namespace === "connected") {
+            //start spinner
+            $dlg.find(".spinner").addClass("spin");
+        } else if (event.namespace === "disconnected") {
+            //stop spinner
+            $dlg.find(".spinner").removeClass("spin");
+        }            
+        var $status = $dlg.find("#status");
         msg.split('\n').forEach(function (line) {
              $status.html(line);
         });
         
         // close dialog on disconnect
-        if (event.namespace === "disconnected") {
-            Dialogs.cancelModalDialogIfOpen("ftp-dialog");
-        }
+//        if (event.namespace === "disconnected") {
+//            Dialogs.cancelModalDialogIfOpen("ftp-dialog");
+//        }
 
     }
 
@@ -224,6 +231,8 @@ define(function (require, exports, module) {
         // listen for events
         $(nodeConnection).on("ftplite.connected", handleEvent);
         $(nodeConnection).on("ftplite.disconnected", handleEvent);
+        $(nodeConnection).on("ftplite.uploaded", handleEvent);
+        $(nodeConnection).on("ftplite.mkdir", handleEvent);
 
         
         
