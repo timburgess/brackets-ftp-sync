@@ -45,9 +45,16 @@ maxerr: 50, node: true, white: true */
     var processOps = false;
     var ops = [];
     
+    // pass an event to client-side
+//    emit(eventName, msg) {
+//        _domainManager.emitEvent("ftplite", eventName, msg);
+//    }
+
+        
     function final() {
         ftp.raw.quit(function (err, data) {
             console.log(data.text);
+//            emit("disconnected", "f00-disconnected");
             console.log('disconnected');
             processOps = false;
         });
@@ -132,6 +139,9 @@ maxerr: 50, node: true, white: true */
             ftp.auth(USER, PWD, function (err, data) {
                 if (err) { return console.log('Failed to connect to remote: ' + err); }
             
+                msg = "Foo, were connected";
+//                _domainManager.emitEvent("ftplite", eventName, msg);
+
                 console.log('Connected ' + data.text);
                 
                 // setup walk function
@@ -202,10 +212,13 @@ maxerr: 50, node: true, white: true */
         if (!DomainManager.hasDomain("ftplite")) {
             DomainManager.registerDomain("ftplite", {major: 0, minor: 1});
         }
+        _domainManager = DomainManager;
+        console.log(_domainManager);
+        
         DomainManager.registerCommand(
             "ftplite",       // domain name
             "getMemory",    // command name
-            cmdGetMemory,   // command handler function
+            cmdGetMemory,   // function name
             false,          // this command is synchronous
             "Returns the total and free memory on the user's system in bytes",
             [],             // no parameters
@@ -213,10 +226,11 @@ maxerr: 50, node: true, white: true */
                 type: "{total: number, free: number}",
                 description: "amount of total and free memory in bytes"}]
         );
+        
         DomainManager.registerCommand(
             "ftplite",       // domain name
             "ftpUpload",    // command name
-            cmdFtpUpload,   // command handler function
+            cmdFtpUpload,   // function name
             false,          // this command is synchronous
             "Uploads working dir to ftp server",
             // input parms
@@ -240,6 +254,21 @@ maxerr: 50, node: true, white: true */
                 description: "remoteroot"}],
             [] // returns
         );
+        
+        DomainManager.registerEvent(
+            "ftplite",
+            "connected",
+            [{  name: "result",
+                type: "string",
+                description: "result"}]
+        );
+
+//        DomainManager.registerEvent(
+//            "ftplite",
+//            "disconnected",
+//            "result"
+//        );
+
 
     }
     

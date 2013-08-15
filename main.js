@@ -68,6 +68,7 @@ define(function (require, exports, module) {
         });
     }
     
+    // handle Upload button
     function handleOk() {
         console.log('handling ok');
         // get input values and save settings
@@ -90,6 +91,7 @@ define(function (require, exports, module) {
         Dialogs.cancelModalDialogIfOpen("ftp-dialog");
     }
         
+    // handle cancel button
     function handleCancel() {
         console.log('handling cancel');
         Dialogs.cancelModalDialogIfOpen("ftp-dialog");
@@ -116,6 +118,18 @@ define(function (require, exports, module) {
         $dlg.find(".dialog-button[data-button-id='cancel']").on("click", handleCancel);
 
     }
+    
+    function callFtpUpload() {
+    var ftpPromise = nodeConnection.domains.ftplite.ftpUpload(ftpSettings.host, ftpSettings.port, ftpSettings.user, ftpSettings.pwd, ftpSettings.localRoot, ftpSettings.remoteRoot);
+    ftpPromise.fail(function (err) {
+        console.error("[ftp-lite] failed to complete ftp upload:", err);
+    });
+    ftpPromise.done(function (memory) {
+        console.log("[ftp-lite] started ftp upload");
+    });
+    return ftpPromise;
+}
+
 
     
     // Helper function that chains a series of promise-returning
@@ -182,21 +196,21 @@ define(function (require, exports, module) {
         }
 
 
-        function callFtpUpload() {
-            var ftpPromise = nodeConnection.domains.ftplite.ftpUpload(ftpSettings.host, ftpSettings.port, ftpSettings.user, ftpSettings.pwd, ftpSettings.localRoot, ftpSettings.remoteRoot);
-            ftpPromise.fail(function (err) {
-                console.error("[ftp-lite] failed to complete ftp upload:", err);
-            });
-            ftpPromise.done(function (memory) {
-                console.log("[ftp-lite] started ftp upload");
-            });
-            return ftpPromise;
-        }
-
         // Call all the helper functions in order
         chain(connect, loadFtpDomain, logMemory);
-        
+
         readSettings();
+
+        // listen for events
+//        $(nodeConnection).on("ftplite.connected", function (event, result) {
+//            console.log(result);
+//        });
+
+//        $(nodeConnection).on("ftplite.disconnected", function (event, result) {
+//            console.log(result);
+//        });
+
+        
         
         console.log('binding Alt-F');
         CommandManager.register("ftplite", COMMAND_ID2, callFtpUpload);
