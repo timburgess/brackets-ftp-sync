@@ -70,9 +70,8 @@ define(function (require, exports, module) {
     
     // handle Upload button
     function handleOk() {
-        console.log('handling ok');
-        // get input values and save settings
 
+        // get input values and save settings
         var $dlg = $(".ftp-dialog.instance");
         ftpSettings.host = $dlg.find("#host").val();
         ftpSettings.port = $dlg.find("#port").val();
@@ -88,12 +87,12 @@ define(function (require, exports, module) {
         // call ftp upload
         callFtpUpload();
         
-        Dialogs.cancelModalDialogIfOpen("ftp-dialog");
+        //Dialogs.cancelModalDialogIfOpen("ftp-dialog");
     }
         
     // handle cancel button
     function handleCancel() {
-        console.log('handling cancel');
+
         Dialogs.cancelModalDialogIfOpen("ftp-dialog");
     }
 
@@ -119,16 +118,18 @@ define(function (require, exports, module) {
 
     }
     
+    // pass parms to node for ftp upload
     function callFtpUpload() {
-    var ftpPromise = nodeConnection.domains.ftplite.ftpUpload(ftpSettings.host, ftpSettings.port, ftpSettings.user, ftpSettings.pwd, ftpSettings.localRoot, ftpSettings.remoteRoot);
-    ftpPromise.fail(function (err) {
-        console.error("[ftp-lite] failed to complete ftp upload:", err);
-    });
-    ftpPromise.done(function (memory) {
-        console.log("[ftp-lite] started ftp upload");
-    });
-    return ftpPromise;
-}
+        
+        var ftpPromise = nodeConnection.domains.ftplite.ftpUpload(ftpSettings.host, ftpSettings.port, ftpSettings.user, ftpSettings.pwd, ftpSettings.localRoot, ftpSettings.remoteRoot);
+        ftpPromise.fail(function (err) {
+            console.error("[ftp-lite] failed to complete ftp upload:", err);
+        });
+        ftpPromise.done(function (memory) {
+            console.log("[ftp-lite] started ftp upload");
+        });
+        return ftpPromise;
+    }
 
 
     
@@ -143,6 +144,24 @@ define(function (require, exports, module) {
                 chain.apply(null, functions);
             });
         }
+    }
+
+    
+    // general event handler of node-side events
+    function handleEvent(event, msg) {
+        console.log("[event]" + event.namespace + " " + msg);
+        var $dlg = $(".ftp-dialog.instance");
+        var $status = $dlg.find("#status");
+//        debugger;
+        msg.split('\n').forEach(function (line) {
+             $status.html(line);
+        });
+        
+        // close dialog on disconnect
+        if (event.namespace === "disconnected") {
+            Dialogs.cancelModalDialogIfOpen("ftp-dialog");
+        }
+
     }
 
     
@@ -195,11 +214,6 @@ define(function (require, exports, module) {
             return memoryPromise;
         }
 
-        // general event handler of node-side events
-        function handleEvent(event, msg) {
-            debugger;
-            console.log("[event]" + event + " " + msg);
-        }
             
         
         // Call all the helper functions in order
