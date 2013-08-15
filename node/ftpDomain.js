@@ -53,9 +53,8 @@ maxerr: 50, node: true, white: true */
         
     function final() {
         ftp.raw.quit(function (err, data) {
+            _domainManager.emitEvent("ftplite", "disconnected", data.text);
             console.log(data.text);
-//            emit("disconnected", "f00-disconnected");
-            console.log('disconnected');
             processOps = false;
         });
     }
@@ -138,10 +137,9 @@ maxerr: 50, node: true, white: true */
             // connect to remote
             ftp.auth(USER, PWD, function (err, data) {
                 if (err) { return console.log('Failed to connect to remote: ' + err); }
-            
-                msg = "Foo, were connected";
-//                _domainManager.emitEvent("ftplite", eventName, msg);
 
+                // emit
+                _domainManager.emitEvent("ftplite", "connected", data.text);
                 console.log('Connected ' + data.text);
                 
                 // setup walk function
@@ -213,7 +211,6 @@ maxerr: 50, node: true, white: true */
             DomainManager.registerDomain("ftplite", {major: 0, minor: 1});
         }
         _domainManager = DomainManager;
-        console.log(_domainManager);
         
         DomainManager.registerCommand(
             "ftplite",       // domain name
@@ -263,11 +260,13 @@ maxerr: 50, node: true, white: true */
                 description: "result"}]
         );
 
-//        DomainManager.registerEvent(
-//            "ftplite",
-//            "disconnected",
-//            "result"
-//        );
+        DomainManager.registerEvent(
+            "ftplite",
+            "disconnected",
+            [{  name: "result",
+                type: "string",
+                description: "result"}]
+        );
 
 
     }

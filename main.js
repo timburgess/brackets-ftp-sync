@@ -195,20 +195,21 @@ define(function (require, exports, module) {
             return memoryPromise;
         }
 
-
+        // general event handler of node-side events
+        function handleEvent(event, msg) {
+            debugger;
+            console.log("[event]" + event + " " + msg);
+        }
+            
+        
         // Call all the helper functions in order
         chain(connect, loadFtpDomain, logMemory);
-
+            
         readSettings();
 
         // listen for events
-//        $(nodeConnection).on("ftplite.connected", function (event, result) {
-//            console.log(result);
-//        });
-
-//        $(nodeConnection).on("ftplite.disconnected", function (event, result) {
-//            console.log(result);
-//        });
+        $(nodeConnection).on("ftplite.connected", handleEvent);
+        $(nodeConnection).on("ftplite.disconnected", handleEvent);
 
         
         
