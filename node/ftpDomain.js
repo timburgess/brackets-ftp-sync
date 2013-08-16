@@ -135,15 +135,27 @@ maxerr: 50, node: true, white: true */
     function connect() {
         // check that local dir exists, walk local fs
         fs.exists(LOCALROOT, function (exists) {
-            if (!exists) { return console.log('local directory ' + LOCALROOT + ' does not exist'); }
+            if (!exists) { 
+                _domainManager.emitEvent("ftplite", "error", LOCALROOT + ' does not exist');
+                console.log('local directory ' + LOCALROOT + ' does not exist');
+                return;
+            }
             
             // connect to remote
             ftp.auth(USER, PWD, function (err, data) {
-                if (err) { return console.log('Failed to connect to remote: ' + err); }
+                if (err) { 
+                    _domainManager.emitEvent("ftplite", "error", err.toString());
+                    console.log('Failed to connect to remote: ' + err);
+                    return;
+                }
 
-                // emit
+                // emit connect
                 _domainManager.emitEvent("ftplite", "connected", data.text);
                 console.log('Connected ' + data.text);
+
+                // check for presence of remote path
+
+
                 
                 // setup walk function
                 var walkFileSystem = function (pathSuffix) {
@@ -284,7 +296,15 @@ maxerr: 50, node: true, white: true */
                 description: "result"}]
         );
 
+        DomainManager.registerEvent(
+            "ftplite",
+            "error",
+            [{  name: "result",
+                type: "string",
+                description: "result"}]
+        );
 
+        
     }
     
     exports.init = init;

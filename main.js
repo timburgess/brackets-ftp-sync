@@ -112,7 +112,7 @@ define(function (require, exports, module) {
 
         // focus to host input and add button handlers
         var $dlg = $(".ftp-dialog.instance");
-        $dlg.find(".host").focus();
+        $dlg.find("#host").focus();
         $dlg.find(".dialog-button[data-button-id='ok']").on("click", handleOk);
         $dlg.find(".dialog-button[data-button-id='cancel']").on("click", handleCancel);
 
@@ -151,6 +151,14 @@ define(function (require, exports, module) {
     function handleEvent(event, msg) {
 
         var $dlg = $(".ftp-dialog.instance");
+
+        debugger;
+        if (event.namespace === "error") {
+            $dlg.find("#status").html(msg);
+            // do this in red
+            return;
+        }
+            
         if (event.namespace === "connected") {
             //start spinner
             $dlg.find(".spinner").addClass("spin");
@@ -235,6 +243,7 @@ define(function (require, exports, module) {
         $(nodeConnection).on("ftplite.disconnected", handleEvent);
         $(nodeConnection).on("ftplite.uploaded", handleEvent);
         $(nodeConnection).on("ftplite.mkdir", handleEvent);
+        $(nodeConnection).on("ftplite.error", handleEvent);
 
         
         
