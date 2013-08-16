@@ -12,7 +12,6 @@ define(function (require, exports, module) {
     "use strict";
 
     var COMMAND_ID = "timburgess.ftplite";
-    var COMMAND_ID2 = "timburgess.ftplite2";
     
     var AppInit             = brackets.getModule("utils/AppInit"),
         ProjectManager      = brackets.getModule("project/ProjectManager"),
@@ -21,8 +20,8 @@ define(function (require, exports, module) {
         ExtensionUtils      = brackets.getModule("utils/ExtensionUtils"),
         NodeConnection      = brackets.getModule("utils/NodeConnection"),
         Dialogs             = brackets.getModule("widgets/Dialogs"),
-        FileSystem = brackets.getModule("file/NativeFileSystem").NativeFileSystem,
-        FileUtils = brackets.getModule("file/FileUtils"),
+        FileSystem          = brackets.getModule("file/NativeFileSystem").NativeFileSystem,
+        FileUtils           = brackets.getModule("file/FileUtils"),
         Strings             = brackets.getModule("strings");
 
     
@@ -240,29 +239,21 @@ define(function (require, exports, module) {
             return loadPromise;
         }
         
-        // Helper function that runs the simple.getMemory command and
-        // logs the result to the console
-//        function logMemory() {
-//            var memoryPromise = nodeConnection.domains.ftplite.getMemory();
-//            memoryPromise.fail(function (err) {
-//                console.error("[ftp-lite] failed to run getMemory", err);
-//            });
-//            memoryPromise.done(function (memory) {
-//                console.log(
-//                    "[ftp-lite] Memory: %d of %d bytes free (%d%)",
-//                    memory.free,
-//                    memory.total,
-//                    Math.floor(memory.free * 100 / memory.total)
-//                );
-//            });
-//            return memoryPromise;
-//        }
-
             
         
         // Call all the helper functions in order
         chain(connect, loadFtpDomain);
-            
+
+        // load stylesheet
+        ExtensionUtils.loadStyleSheet(module, "styles/styles.css");
+        
+        // add icon to toolbar & listener
+        $("#main-toolbar .buttons").append(toolbar);
+        $("#toolbar-ftplite").on("click", function() {
+            showFtpDialog();
+        });
+        
+        // get any existing settings
         readSettings();
 
         // listen for events
@@ -272,11 +263,6 @@ define(function (require, exports, module) {
         $(nodeConnection).on("ftplite.mkdir", handleEvent);
         $(nodeConnection).on("ftplite.error", handleEvent);
 
-        
-        
-        console.log('binding Alt-F');
-        CommandManager.register("ftplite", COMMAND_ID2, callFtpUpload);
-        KeyBindingManager.addBinding(COMMAND_ID2, "Alt-F", "mac");
 
         console.log('binding Ctrl-W');
         CommandManager.register("ftplitedialog", COMMAND_ID, showFtpDialog);

@@ -1,0 +1,12 @@
+#toolbar-ftplite {
+    display:inline-block;
+/*    width:16px;*/
+/*    height:16px;*/
+    background-image:url('img/cloud.svg');
+    background-size:100%;
+    opacity:0.75;
+}
+
+#toolbar-ftplite:hover{
+    opacity:1;
+}
