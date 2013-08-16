@@ -152,10 +152,12 @@ define(function (require, exports, module) {
 
         var $dlg = $(".ftp-dialog.instance");
 
-        debugger;
         if (event.namespace === "error") {
+            // remove spinner if active
+            $dlg.find(".spinner").removeClass("spin");
+
             $dlg.find("#status").html(msg);
-            // do this in red
+            // do this in reed
             return;
         }
             

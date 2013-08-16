@@ -45,15 +45,14 @@ maxerr: 50, node: true, white: true */
     var processOps = false;
     var ops = [];
     
-    // pass an event to client-side
-//    emit(eventName, msg) {
-//        _domainManager.emitEvent("ftplite", eventName, msg);
-//    }
 
         
-    function final() {
+    function final(emitOK) {
+        if (emitOK === undefined) { emitOK = true; }
         ftp.raw.quit(function (err, data) {
-            _domainManager.emitEvent("ftplite", "disconnected", data.text);
+            if (emitOK) {
+                _domainManager.emitEvent("ftplite", "disconnected", data.text);
+            }
             console.log(data.text);
             processOps = false;
         });
@@ -154,53 +153,54 @@ maxerr: 50, node: true, white: true */
                 console.log('Connected ' + data.text);
 
                 // check for presence of remote path
-
-
-                
-                // setup walk function
-                var walkFileSystem = function (pathSuffix) {
-                    var i;
-                    var fullPath = LOCALROOT + pathSuffix;
-        
-                    var files = fs.readdirSync(fullPath);
-                    for (i in files) {
-                        // ignore hiddenfiles
-                        if (files[i].substring(0, 1) !== '.') {
-        
-                            var currentFile = fullPath + files[i];
-                            var remotePath = REMOTEROOT + pathSuffix + files[i];
-                            var stats = fs.statSync(currentFile);
-        
-                            if (stats.isFile()) {
-                                ops.push([statOp, currentFile, remotePath]);
-                                // start ops now we have an op
-                                if (!processOps) {
-                                    processOps = true;
-                                    series(ops.shift());
-                                }
-                                
-                            } else if (stats.isDirectory()) {
-                                ops.push([dirOp, currentFile, remotePath]);
-                                walkFileSystem(pathSuffix + files[i] + '/');
-                            } // ignore other types
-                        }
+                ftp.ls(REMOTEROOT, function (err, res) {
+                    if (err || res.length === 0) {
+                        _domainManager.emitEvent("ftplite", "error", "Error: remote root directory does not exist");
+                        console.log('cannot stat remote root');
+                        
+                        // we'e authed so we need to disconnect
+                        final(false);
+                        return;
                     }
-                };
-                walkFileSystem('/');
+
+                    // setup walk function
+                    var walkFileSystem = function (pathSuffix) {
+                        var i;
+                        var fullPath = LOCALROOT + pathSuffix;
+            
+                        var files = fs.readdirSync(fullPath);
+                        for (i in files) {
+                            // ignore hiddenfiles
+                            if (files[i].substring(0, 1) !== '.') {
+            
+                                var currentFile = fullPath + files[i];
+                                var remotePath = REMOTEROOT + pathSuffix + files[i];
+                                var stats = fs.statSync(currentFile);
+            
+                                if (stats.isFile()) {
+                                    ops.push([statOp, currentFile, remotePath]);
+                                    // start ops now we have an op
+                                    if (!processOps) {
+                                        processOps = true;
+                                        series(ops.shift());
+                                    }
+                                    
+                                } else if (stats.isDirectory()) {
+                                    ops.push([dirOp, currentFile, remotePath]);
+                                    walkFileSystem(pathSuffix + files[i] + '/');
+                                } // ignore other types
+                            }
+                        }
+                    };
+                    walkFileSystem('/');
+                });
             });
         });
     }
 
-        
-    function cmdGetMemory() {
-        console.log('in cmdGetMemory');
-        return {total: os.totalmem(), free: os.freemem()};
-    }
     /**
      * @private
-     * Handler function for the simple.getMemory command.
-     * @return {{total: number, free: number}} The total and free amount of
-     *   memory on the user's system, in bytes.
+     * Handler function for the ftp upload
      */
     function cmdFtpUpload(host, port, user, pwd, localroot, remoteroot) {
         
@@ -226,19 +226,7 @@ maxerr: 50, node: true, white: true */
             DomainManager.registerDomain("ftplite", {major: 0, minor: 1});
         }
         _domainManager = DomainManager;
-        
-        DomainManager.registerCommand(
-            "ftplite",       // domain name
-            "getMemory",    // command name
-            cmdGetMemory,   // function name
-            false,          // this command is synchronous
-            "Returns the total and free memory on the user's system in bytes",
-            [],             // no parameters
-            [{name: "memory",
-                type: "{total: number, free: number}",
-                description: "amount of total and free memory in bytes"}]
-        );
-        
+
         DomainManager.registerCommand(
             "ftplite",       // domain name
             "ftpUpload",    // command name
