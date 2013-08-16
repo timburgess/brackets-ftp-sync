@@ -6,7 +6,7 @@
 
 /*jslint vars: true, plusplus: true, devel: true, nomen: true, indent: 4,
 maxerr: 50, browser: true, white:true */
-/*global $, define, Mustache, brackets */
+/*global $, define, Mustache, brackets, debugger */
 
 define(function (require, exports, module) {
     "use strict";
@@ -151,7 +151,6 @@ define(function (require, exports, module) {
     function handleEvent(event, msg) {
 
         var $dlg = $(".ftp-dialog.instance");
-//        debugger;
         if (event.namespace === "connected") {
             //start spinner
             $dlg.find(".spinner").addClass("spin");
@@ -161,13 +160,16 @@ define(function (require, exports, module) {
         }            
         var $status = $dlg.find("#status");
         msg.split('\n').forEach(function (line) {
-             $status.html(line);
+            if (line.length > 66) {
+                line = line.substr(0,66) + "..";
+            }
+            $status.html(line);
         });
         
         // close dialog on disconnect
-//        if (event.namespace === "disconnected") {
-//            Dialogs.cancelModalDialogIfOpen("ftp-dialog");
-//        }
+        if (event.namespace === "disconnected") {
+            Dialogs.cancelModalDialogIfOpen("ftp-dialog");
+        }
 
     }
 

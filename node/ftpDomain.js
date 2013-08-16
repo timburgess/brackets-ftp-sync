@@ -79,7 +79,7 @@ maxerr: 50, node: true, white: true */
                     console.log('remote mkdir failed:' + err);
                 }
             } else {
-                _domainManager.emitEvent("ftplite", "mkdir", "created directory " + remotePath);
+                _domainManager.emitEvent("ftplite", "mkdir", "created " + remotePath);
                 console.log('created remote dir ' + remotePath); }
             return series(ops.shift());
         });
