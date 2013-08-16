@@ -26,9 +26,11 @@ define(function (require, exports, module) {
         Strings             = brackets.getModule("strings");
 
     
-    var mainDialog       = require("text!ftp-dialog.html");
+    var mainDialog       = require("text!htmlContent/ftp-dialog.html");
+    var toolbar          = require("text!htmlContent/ftp-toolbar.html");
 
     var nodeConnection;
+    
     var inProcess = false; // whether ftp is underway
     
     var ftpSettings = {
