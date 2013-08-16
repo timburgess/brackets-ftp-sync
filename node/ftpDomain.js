@@ -43,6 +43,7 @@ maxerr: 50, node: true, white: true */
 
     var ftp;
     var processOps = false;
+    var haltCalled = false;
     var ops = [];
     
 
@@ -54,7 +55,9 @@ maxerr: 50, node: true, white: true */
                 _domainManager.emitEvent("ftplite", "disconnected", data.text);
             }
             console.log(data.text);
+            // reset flags
             processOps = false;
+            haltCalled = false;
         });
     }
 
@@ -62,6 +65,10 @@ maxerr: 50, node: true, white: true */
     function series(op) {
     
         if (op) {
+            if (haltCalled) {
+                ops = [];
+                return final();
+            }
             var func = op[0];
             func(op[1], op[2]);
         } else {
@@ -216,6 +223,16 @@ maxerr: 50, node: true, white: true */
         connect();
         
     }
+
+    /**
+     * @private
+     * Handler function for setting stop flag
+     */
+    function cmdFtpStop() {
+        haltCalled = true;
+        console.log('ftp transfer stopping');
+    }
+
     
     /**
      * Initializes the test domain with several test commands.
@@ -252,6 +269,18 @@ maxerr: 50, node: true, white: true */
             [{  name: "remoteroot",
                 type: "string",
                 description: "remoteroot"}],
+            [] // returns
+        );
+
+
+        DomainManager.registerCommand(
+            "ftplite",       // domain name
+            "ftpStop",    // command name
+            cmdFtpStop,   // function name
+            false,          // this command is synchronous
+            "Flags any ops underway to halt",
+            // input parms
+            [],
             [] // returns
         );
         

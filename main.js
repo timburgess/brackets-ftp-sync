@@ -28,8 +28,8 @@ define(function (require, exports, module) {
     
     var mainDialog       = require("text!ftp-dialog.html");
 
-
     var nodeConnection;
+    var inProcess = false; // whether ftp is underway
     
     var ftpSettings = {
         host : "localhost",
@@ -85,6 +85,7 @@ define(function (require, exports, module) {
         ftpSettings.localRoot = ProjectManager.getProjectRoot().fullPath;
 
         // call ftp upload
+        inProcess = true;
         callFtpUpload();
         
         // dialog closes on recipt of disconnect event
@@ -92,8 +93,14 @@ define(function (require, exports, module) {
         
     // handle cancel button
     function handleCancel() {
-
-        Dialogs.cancelModalDialogIfOpen("ftp-dialog");
+        
+        // if ftp underway, call cancel on node-side
+        if (inProcess) {
+            callFtpStop();
+            // dialog will close on disconnect event
+        } else {
+            Dialogs.cancelModalDialogIfOpen("ftp-dialog");
+        }
     }
 
     
@@ -118,7 +125,7 @@ define(function (require, exports, module) {
 
     }
     
-    // pass parms to node for ftp upload
+    // call node for ftp upload
     function callFtpUpload() {
         
         var ftpPromise = nodeConnection.domains.ftplite.ftpUpload(ftpSettings.host, ftpSettings.port, ftpSettings.user, ftpSettings.pwd, ftpSettings.localRoot, ftpSettings.remoteRoot);
@@ -131,7 +138,20 @@ define(function (require, exports, module) {
         return ftpPromise;
     }
 
+    // call node for ftp stop
+    function callFtpStop() {
+        
+        var ftpPromise = nodeConnection.domains.ftplite.ftpStop();
+        ftpPromise.fail(function (err) {
+            console.error("[ftp-lite] failed to complete ftp stop:", err);
+        });
+        ftpPromise.done(function (memory) {
+            console.log("[ftp-lite] ftp upload stopped");
+        });
+        return ftpPromise;
+    }
 
+    
     
     // Helper function that chains a series of promise-returning
     // functions together via their done callbacks.
@@ -155,7 +175,6 @@ define(function (require, exports, module) {
         if (event.namespace === "error") {
             // remove spinner if active
             $dlg.find(".spinner").removeClass("spin");
-
             $dlg.find("#status").html(msg);
             // do this in reed
             return;
@@ -167,6 +186,7 @@ define(function (require, exports, module) {
         } else if (event.namespace === "disconnected") {
             //stop spinner
             $dlg.find(".spinner").removeClass("spin");
+            inProcess = false;
         }            
         var $status = $dlg.find("#status");
         msg.split('\n').forEach(function (line) {
@@ -212,31 +232,34 @@ define(function (require, exports, module) {
             loadPromise.fail(function () {
                 console.log("[ftp-lite] failed to load domain");
             });
+            loadPromise.done(function () {
+                 console.log("[ftp-lite] loaded");
+            });
             return loadPromise;
         }
         
         // Helper function that runs the simple.getMemory command and
         // logs the result to the console
-        function logMemory() {
-            var memoryPromise = nodeConnection.domains.ftplite.getMemory();
-            memoryPromise.fail(function (err) {
-                console.error("[ftp-lite] failed to run getMemory", err);
-            });
-            memoryPromise.done(function (memory) {
-                console.log(
-                    "[ftp-lite] Memory: %d of %d bytes free (%d%)",
-                    memory.free,
-                    memory.total,
-                    Math.floor(memory.free * 100 / memory.total)
-                );
-            });
-            return memoryPromise;
-        }
+//        function logMemory() {
+//            var memoryPromise = nodeConnection.domains.ftplite.getMemory();
+//            memoryPromise.fail(function (err) {
+//                console.error("[ftp-lite] failed to run getMemory", err);
+//            });
+//            memoryPromise.done(function (memory) {
+//                console.log(
+//                    "[ftp-lite] Memory: %d of %d bytes free (%d%)",
+//                    memory.free,
+//                    memory.total,
+//                    Math.floor(memory.free * 100 / memory.total)
+//                );
+//            });
+//            return memoryPromise;
+//        }
 
             
         
         // Call all the helper functions in order
-        chain(connect, loadFtpDomain, logMemory);
+        chain(connect, loadFtpDomain);
             
         readSettings();
 
