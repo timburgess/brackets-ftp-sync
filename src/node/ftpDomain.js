@@ -96,7 +96,7 @@ maxerr: 50, node: true, white: true */
     
         ftp.getPutSocket(remotePath, function (err, socket) {
             if (err) {
-                console.log('getPutSocketFail:' + err);
+                console.log('socket fail:' + err);
             } else {
                 var read = fs.createReadStream(localPath, { bufferSize: 4 * 1024 });
                 // socket is a writeable stream
