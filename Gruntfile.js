@@ -17,7 +17,7 @@ module.exports = function(grunt) {
           expand: true,
           cwd: 'src/',
           src: '**',
-          dest: 'build/'
+          dest: 'build/ftp-lite'
       }
     },
 
@@ -28,25 +28,37 @@ module.exports = function(grunt) {
           },
           'screw-ie8': true
       },
-      build1: {
+      client: {
           src: 'src/main.js',
-          dest: 'build/main.js'
+          dest: 'build/ftp-lite/main.js'
       },
-      build2: {
+      node: {
           src: 'src/node/ftpDomain.js',
-          dest: 'build/node/ftpDomain.js'
+          dest: 'build/ftp-lite/node/ftpDomain.js'
       }
-
+    },
+      
+    compress: {
+        build: {
+            options: {
+                archive: 'ftp-lite.zip',
+                mode: 'zip'
+            },
+            files: [
+                { expand:true, cwd: 'build/', src: '**' }
+            ]
+        }
     }
   });
 
   // load copy plugin
   grunt.loadNpmTasks('grunt-contrib-copy');
   grunt.loadNpmTasks('grunt-contrib-uglify');
+  grunt.loadNpmTasks('grunt-contrib-compress');
   grunt.loadNpmTasks('grunt-contrib-clean');
 
   // default
-  grunt.registerTask('default', ['copy','uglify']);
+  grunt.registerTask('default', ['copy','uglify','compress']);
 
 
 };
