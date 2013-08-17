@@ -1,10 +1,16 @@
 {
   "name": "ftp-lite",
   "version": "1.0.0",
+  "repository": {
+    "type": "git",
+    "url": "http://github.com/timburgess/ftp-lite.git"
+  },
   "devDependencies": {
     "grunt": "~0.4.1",
     "grunt-contrib-jshint": "~0.6.0",
     "grunt-contrib-nodeunit": "~0.2.0",
-    "grunt-contrib-uglify": "~0.2.2"
+    "grunt-contrib-uglify": "~0.2.2",
+    "grunt-contrib-copy": "~0.4.1",
+    "grunt-contrib-clean": "~0.5.0"
   }
 }
