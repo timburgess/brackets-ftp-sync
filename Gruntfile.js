@@ -28,10 +28,15 @@ module.exports = function(grunt) {
           },
           'screw-ie8': true
       },
-      build: {
+      build1: {
           src: 'src/main.js',
-          dest: 'build/src/main.js'
+          dest: 'build/main.js'
+      },
+      build2: {
+          src: 'src/node/ftpDomain.js',
+          dest: 'build/node/ftpDomain.js'
       }
+
     }
   });
 
@@ -41,7 +46,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-clean');
 
   // default
-  grunt.registerTask('default', ['copy']);
+  grunt.registerTask('default', ['copy','uglify']);
 
 
 };

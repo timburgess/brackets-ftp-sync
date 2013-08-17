@@ -264,10 +264,10 @@ define(function (require, exports, module) {
         $(nodeConnection).on("ftplite.error", handleEvent);
 
 
-        console.log('binding Ctrl-W');
-        CommandManager.register("ftplitedialog", COMMAND_ID, showFtpDialog);
-        KeyBindingManager.addBinding(COMMAND_ID, "Ctrl-W", "mac");
-        KeyBindingManager.addBinding(COMMAND_ID, "Ctrl-W", "win");
+//        console.log('binding Ctrl-W');
+//        CommandManager.register("ftplitedialog", COMMAND_ID, showFtpDialog);
+//        KeyBindingManager.addBinding(COMMAND_ID, "Ctrl-W", "mac");
+//        KeyBindingManager.addBinding(COMMAND_ID, "Ctrl-W", "win");
         
 
     });
