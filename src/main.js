@@ -84,6 +84,9 @@ define(function (require, exports, module) {
         
         // determine the local root
         ftpSettings.localRoot = ProjectManager.getProjectRoot().fullPath;
+        
+        // emit a connecting event for dialog status
+        handleEvent({ namespace: "connecting" }, "Connecting..." );
 
         // call ftp upload
         inProcess = true;
@@ -106,7 +109,7 @@ define(function (require, exports, module) {
     
     // general event handler of node-side events
     function handleEvent(event, msg) {
-        debugger;
+        
         var $dlg = $(".ftp-dialog.instance");
 
         if (event.namespace === "error") {
@@ -151,7 +154,7 @@ define(function (require, exports, module) {
             remoteroot: ftpSettings.remoteRoot,
             Strings: Strings
         };
-        
+                
         Dialogs.showModalDialogUsingTemplate(Mustache.render(mainDialog, templateVars), false);
 
         // focus to host input and add button handlers
@@ -160,9 +163,6 @@ define(function (require, exports, module) {
         $dlg.find(".dialog-button[data-button-id='ok']").on("click", handleOk);
         $dlg.find(".dialog-button[data-button-id='cancel']").on("click", handleCancel);
         
-        // emit a connecting event for dialog status
-        debugger;
-        handleEvent({ namespace: "connecting", msg: "connecting" });
 
     }
     
