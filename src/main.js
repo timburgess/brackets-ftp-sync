@@ -89,7 +89,7 @@ define(function (require, exports, module) {
         inProcess = true;
         callFtpUpload();
         
-        // dialog closes on recipt of disconnect event
+        // dialog closes on receipt of disconnect event
     }
         
     // handle cancel button
@@ -103,6 +103,42 @@ define(function (require, exports, module) {
             Dialogs.cancelModalDialogIfOpen("ftp-dialog");
         }
     }
+    
+    // general event handler of node-side events
+    function handleEvent(event, msg) {
+        debugger;
+        var $dlg = $(".ftp-dialog.instance");
+
+        if (event.namespace === "error") {
+            // remove spinner if active
+            $dlg.find(".spinner").removeClass("spin");
+            $dlg.find("#status").html(msg);
+            // do this in reed
+            return;
+        }
+            
+        if (event.namespace === "connecting") {
+            //start spinner
+            $dlg.find(".spinner").addClass("spin");
+        } else if (event.namespace === "disconnected") {
+            //stop spinner
+            $dlg.find(".spinner").removeClass("spin");
+            inProcess = false;
+        }            
+        var $status = $dlg.find("#status");
+        msg.split('\n').forEach(function (line) {
+            if (line.length > 66) {
+                line = line.substr(0,66) + "..";
+            }
+            $status.html(line);
+        });
+        
+        // close dialog on disconnect
+        if (event.namespace === "disconnected") {
+            Dialogs.cancelModalDialogIfOpen("ftp-dialog");
+        }
+    }
+
 
     
     // show the ftp dialog and get references    
@@ -123,6 +159,10 @@ define(function (require, exports, module) {
         $dlg.find("#host").focus();
         $dlg.find(".dialog-button[data-button-id='ok']").on("click", handleOk);
         $dlg.find(".dialog-button[data-button-id='cancel']").on("click", handleCancel);
+        
+        // emit a connecting event for dialog status
+        debugger;
+        handleEvent({ namespace: "connecting", msg: "connecting" });
 
     }
     
@@ -168,41 +208,6 @@ define(function (require, exports, module) {
     }
 
     
-    // general event handler of node-side events
-    function handleEvent(event, msg) {
-
-        var $dlg = $(".ftp-dialog.instance");
-
-        if (event.namespace === "error") {
-            // remove spinner if active
-            $dlg.find(".spinner").removeClass("spin");
-            $dlg.find("#status").html(msg);
-            // do this in reed
-            return;
-        }
-            
-        if (event.namespace === "connected") {
-            //start spinner
-            $dlg.find(".spinner").addClass("spin");
-        } else if (event.namespace === "disconnected") {
-            //stop spinner
-            $dlg.find(".spinner").removeClass("spin");
-            inProcess = false;
-        }            
-        var $status = $dlg.find("#status");
-        msg.split('\n').forEach(function (line) {
-            if (line.length > 66) {
-                line = line.substr(0,66) + "..";
-            }
-            $status.html(line);
-        });
-        
-        // close dialog on disconnect
-        if (event.namespace === "disconnected") {
-            Dialogs.cancelModalDialogIfOpen("ftp-dialog");
-        }
-
-    }
 
     
     AppInit.appReady(function () {
