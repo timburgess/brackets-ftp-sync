@@ -147,10 +147,14 @@ maxerr: 50, node: true, white: true */
             final(false);
             return;
         }
+        
+        // remote dir exists, so capture how many levels down
+        var subnum = REMOTEROOT.split('/').length;
+        var i, upPath = "..";
+        for (i = 0; i < subnum-1; i++) { upPath = upPath + "/.."; }
             
-        // remote dir exists so pop up from prior CWD and then walk the tree
-        // check for presence of remote path. We do this raw to get FTP return code
-        ftp.raw.cwd("..", function (err, res) {
+        // pop up from prior CWD and then walk the tree
+        ftp.raw.cwd(upPath, function (err, res) {
             if (err) {
                 // somehow we had a popup issue, so exit
                 _domainManager.emitEvent("ftplite", "error", "Error: remote directory does not exist");
