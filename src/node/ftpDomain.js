@@ -137,6 +137,78 @@ maxerr: 50, node: true, white: true */
     }
 
 
+    // checks the return from a cwd that we have a valid remote root and
+    // then initiates directory walk
+    function checkRemoteDir(err, data) {
+        if (err) {
+            _domainManager.emitEvent("ftplite", "error", "Error: remote directory does not exist");
+            console.log('cannot cwd remote root: ' + REMOTEROOT);
+            // we'e authed so we need to disconnect
+            final(false);
+            return;
+        }
+            
+        // remote dir exists so pop up from prior CWD and then walk the tree
+        // check for presence of remote path. We do this raw to get FTP return code
+        ftp.raw.cwd("..", function (err, res) {
+            if (err) {
+                // somehow we had a popup issue, so exit
+                _domainManager.emitEvent("ftplite", "error", "Error: remote directory does not exist");
+                console.log('cannot cwd remote root: ' + REMOTEROOT);
+                final(false);
+                return;
+            }
+            
+            // get the login dir and prefix to REMOTEROOT
+            ftp.raw.pwd(function (err, data) {
+                if (err) {
+                    // we'e authed so we need to disconnect
+                    final(false);
+                    return;
+                }
+            
+                var raw = data.text.split(' ')[1];
+                // strip out quotes in path
+                var prefix = raw.replace(/\"/g, "") + '/';
+                console.log('logged in at ' + prefix);
+                REMOTEROOT = prefix + REMOTEROOT;
+                console.log('full remote path is ' + REMOTEROOT);
+    
+                // setup walk function
+                var walkFileSystem = function (pathSuffix) {
+                    var i;
+                    var fullPath = LOCALROOT + pathSuffix;
+        
+                    var files = fs.readdirSync(fullPath);
+                    for (i in files) {
+                        // ignore hiddenfiles
+                        if (files[i].substring(0, 1) !== '.') {
+        
+                            var currentFile = fullPath + files[i];
+                            var remotePath = REMOTEROOT + pathSuffix + files[i];
+                            var stats = fs.statSync(currentFile);
+        
+                            if (stats.isFile()) {
+                                ops.push([statOp, currentFile, remotePath]);
+                                // start ops now we have an op
+                                if (!processOps) {
+                                    processOps = true;
+                                    series(ops.shift());
+                                }
+                                
+                            } else if (stats.isDirectory()) {
+                                ops.push([dirOp, currentFile, remotePath]);
+                                walkFileSystem(pathSuffix + files[i] + '/');
+                            } // ignore other types
+                        }
+                    }
+                };
+                walkFileSystem('/');
+            });
+        });
+    }
+        
+    
     
     function connect() {
         // check that local dir exists, walk local fs
@@ -159,71 +231,14 @@ maxerr: 50, node: true, white: true */
                 _domainManager.emitEvent("ftplite", "connected", data.text);
                 console.log('Connected ' + data.text);
                 
-                // get login path and suffix to REMOTEROOT
-                ftp.execute('pwd', function(err, data) {
-        
-                    if (err || data.length === 0) {
-                        console.log('cannot determine remote path:' + err);
-                        // we'e authed so we need to disconnect
-                        final(false);
-                        return;
-
-                    } else {
-                        var raw = data.text.split(' ')[1];
-                        // strip out quotes in path
-                        var prefix = raw.replace(/\"/g, "") + '/';
-                        console.log('login at ' + prefix);
-                        REMOTEROOT = prefix + REMOTEROOT;
-                        console.log('remote root at ' + REMOTEROOT);
-                
-                        // check for presence of remote path
-                        ftp.ls(REMOTEROOT, function (err, res) {
-                            
-                            if (err) {
-                                _domainManager.emitEvent("ftplite", "error", "Error: remote root directory does not exist");
-                                console.log('cannot stat remote root: ' + REMOTEROOT);
-                                // we'e authed so we need to disconnect
-                                final(false);
-                                return;
-                            }
-                    
-                            // setup walk function
-                            var walkFileSystem = function (pathSuffix) {
-                                var i;
-                                var fullPath = LOCALROOT + pathSuffix;
-                    
-                                var files = fs.readdirSync(fullPath);
-                                for (i in files) {
-                                    // ignore hiddenfiles
-                                    if (files[i].substring(0, 1) !== '.') {
-                    
-                                        var currentFile = fullPath + files[i];
-                                        var remotePath = REMOTEROOT + pathSuffix + files[i];
-                                        var stats = fs.statSync(currentFile);
-                    
-                                        if (stats.isFile()) {
-                                            ops.push([statOp, currentFile, remotePath]);
-                                            // start ops now we have an op
-                                            if (!processOps) {
-                                                processOps = true;
-                                                series(ops.shift());
-                                            }
-                                            
-                                        } else if (stats.isDirectory()) {
-                                            ops.push([dirOp, currentFile, remotePath]);
-                                            walkFileSystem(pathSuffix + files[i] + '/');
-                                        } // ignore other types
-                                    }
-                                }
-                            };
-                            walkFileSystem('/');
-                        });
-                    }
-                });
+                // check REMOTEROOT is a valid directory
+                ftp.raw.cwd(REMOTEROOT, checkRemoteDir);
             });
         });
     }
+                            
 
+    
     /**
      * @private
      * Handler function for the ftp upload

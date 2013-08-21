@@ -98,11 +98,10 @@ define(function (require, exports, module) {
     // handle cancel button
     function handleCancel() {
         
-        // if ftp underway, call cancel on node-side
-        if (inProcess) {
+        if (inProcess) { // if ftp underway, call cancel on node-side
             callFtpStop();
-            // dialog will close on disconnect event
-        } else {
+            inProcess = false;
+        } else { // dialog will close on disconnect event
             Dialogs.cancelModalDialogIfOpen("ftp-dialog");
         }
     }
