@@ -1,9 +1,9 @@
 {
-  "name": "ftp-lite",
+  "name": "ftp-sync",
   "version": "1.0.0",
   "repository": {
     "type": "git",
-    "url": "http://github.com/timburgess/ftp-lite.git"
+    "url": "http://github.com/timburgess/ftp.git"
   },
   "devDependencies": {
     "grunt": "~0.4.1",
