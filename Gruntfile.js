@@ -17,7 +17,7 @@ module.exports = function(grunt) {
           expand: true,
           cwd: 'src/',
           src: '**',
-          dest: 'build/ftp-lite'
+          dest: 'build/ftp-sync'
       }
     },
 
@@ -30,18 +30,18 @@ module.exports = function(grunt) {
       },
       client: {
           src: 'src/main.js',
-          dest: 'build/ftp-lite/main.js'
+          dest: 'build/ftp-sync/main.js'
       },
       node: {
           src: 'src/node/ftpDomain.js',
-          dest: 'build/ftp-lite/node/ftpDomain.js'
+          dest: 'build/ftp-sync/node/ftpDomain.js'
       }
     },
       
     compress: {
         build: {
             options: {
-                archive: 'ftp-lite.zip',
+                archive: 'ftp-sync.zip',
                 mode: 'zip'
             },
             files: [
