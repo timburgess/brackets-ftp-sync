@@ -1,1 +1,1 @@
-Contact: timburgess@mac.com
+Contact: info@tim-burgess.com
