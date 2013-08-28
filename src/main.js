@@ -1,8 +1,9 @@
 /*
  * Copyright (c) 2013 Tim Burgess. All rights reserved.
- *  
+ *
+ * @author Tim Burgess <info@tim-burgess.com>
+ * @license Tim Burgess 2013
  */
-
 
 /*jslint vars: true, plusplus: true, devel: true, nomen: true, indent: 4,
 maxerr: 50, browser: true, white:true */
@@ -11,7 +12,7 @@ maxerr: 50, browser: true, white:true */
 define(function (require, exports, module) {
     "use strict";
 
-    var COMMAND_ID = "timburgess.ftplite";
+    var COMMAND_ID = "timburgess.ftpsync";
     
     var AppInit             = brackets.getModule("utils/AppInit"),
         ProjectManager      = brackets.getModule("project/ProjectManager"),
@@ -47,17 +48,17 @@ define(function (require, exports, module) {
         
         var destinationDir = ProjectManager.getProjectRoot().fullPath;
         console.log(destinationDir);        
-        var fileEntry = new FileSystem.FileEntry(destinationDir + ".ftplitesettings");
+        var fileEntry = new FileSystem.FileEntry(destinationDir + ".ftpsyncsettings");
         var settingsData = JSON.stringify(ftpSettings);
         FileUtils.writeText(fileEntry, settingsData).done(function () {
         });
     }
     
-    // pull settings from .ftplitesettings
+    // pull settings from .ftpsyncsettings
     function readSettings() {
         var destinationDir = ProjectManager.getProjectRoot().fullPath;
 
-        FileSystem.resolveNativeFileSystemPath(destinationDir + ".ftplitesettings", function (fileEntry) {
+        FileSystem.resolveNativeFileSystemPath(destinationDir + ".ftpsyncsettings", function (fileEntry) {
             FileUtils.readAsText(fileEntry).done(function (text) {
                 // settings file exists so parse
                 ftpSettings = $.parseJSON(text);
@@ -168,12 +169,12 @@ define(function (require, exports, module) {
     // call node for ftp upload
     function callFtpUpload() {
         
-        var ftpPromise = nodeConnection.domains.ftplite.ftpUpload(ftpSettings.host, ftpSettings.port, ftpSettings.user, ftpSettings.pwd, ftpSettings.localRoot, ftpSettings.remoteRoot);
+        var ftpPromise = nodeConnection.domains.ftpsync.ftpUpload(ftpSettings.host, ftpSettings.port, ftpSettings.user, ftpSettings.pwd, ftpSettings.localRoot, ftpSettings.remoteRoot);
         ftpPromise.fail(function (err) {
-            console.error("[ftp-lite] failed to complete ftp upload:", err);
+            console.error("[ftp-sync] failed to complete ftp upload:", err);
         });
         ftpPromise.done(function (memory) {
-            console.log("[ftp-lite] started ftp upload");
+            console.log("[ftp-sync] started ftp upload");
         });
         return ftpPromise;
     }
@@ -181,12 +182,12 @@ define(function (require, exports, module) {
     // call node for ftp stop
     function callFtpStop() {
         
-        var ftpPromise = nodeConnection.domains.ftplite.ftpStop();
+        var ftpPromise = nodeConnection.domains.ftpsync.ftpStop();
         ftpPromise.fail(function (err) {
-            console.error("[ftp-lite] failed to complete ftp stop:", err);
+            console.error("[ftp-sync] failed to complete ftp stop:", err);
         });
         ftpPromise.done(function (memory) {
-            console.log("[ftp-lite] ftp upload stopped");
+            console.log("[ftp-sync] ftp upload stopped");
         });
         return ftpPromise;
     }
@@ -225,7 +226,7 @@ define(function (require, exports, module) {
         function connect() {
             var connectionPromise = nodeConnection.connect(true);
             connectionPromise.fail(function () {
-                console.error("[ftp-lite] failed to connect to node");
+                console.error("[ftp-sync] failed to connect to node");
             });
             return connectionPromise;
         }
@@ -235,10 +236,10 @@ define(function (require, exports, module) {
             var path = ExtensionUtils.getModulePath(module, "node/ftpDomain");
             var loadPromise = nodeConnection.loadDomains([path], true);
             loadPromise.fail(function () {
-                console.log("[ftp-lite] failed to load domain");
+                console.log("[ftp-sync] failed to load domain");
             });
             loadPromise.done(function () {
-                 console.log("[ftp-lite] loaded");
+                 console.log("[ftp-sync] loaded");
             });
             return loadPromise;
         }
@@ -253,7 +254,7 @@ define(function (require, exports, module) {
         
         // add icon to toolbar & listener
         $("#main-toolbar .buttons").append(toolbar);
-        $("#toolbar-ftplite").on("click", function() {
+        $("#toolbar-ftpsync").on("click", function() {
             showFtpDialog();
         });
         
@@ -261,15 +262,15 @@ define(function (require, exports, module) {
         readSettings();
 
         // listen for events
-        $(nodeConnection).on("ftplite.connected", handleEvent);
-        $(nodeConnection).on("ftplite.disconnected", handleEvent);
-        $(nodeConnection).on("ftplite.uploaded", handleEvent);
-        $(nodeConnection).on("ftplite.mkdir", handleEvent);
-        $(nodeConnection).on("ftplite.error", handleEvent);
+        $(nodeConnection).on("ftpsync.connected", handleEvent);
+        $(nodeConnection).on("ftpsync.disconnected", handleEvent);
+        $(nodeConnection).on("ftpsync.uploaded", handleEvent);
+        $(nodeConnection).on("ftpsync.mkdir", handleEvent);
+        $(nodeConnection).on("ftpsync.error", handleEvent);
 
 
 //        console.log('binding Ctrl-W');
-//        CommandManager.register("ftplitedialog", COMMAND_ID, showFtpDialog);
+//        CommandManager.register("ftpsyncdialog", COMMAND_ID, showFtpDialog);
 //        KeyBindingManager.addBinding(COMMAND_ID, "Ctrl-W", "mac");
 //        KeyBindingManager.addBinding(COMMAND_ID, "Ctrl-W", "win");
         

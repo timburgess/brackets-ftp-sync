@@ -1,6 +1,6 @@
 {
-    "name": "ftp-lite",
-    "title": "FTP Lite",
+    "name": "ftp-sync",
+    "title": "FTP-Sync",
     "description": "FTP upload for Brackets",
     "homepage": "https://github.com/timburgess",
     "version": "1.0.0",

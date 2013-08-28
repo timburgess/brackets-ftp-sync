@@ -26,6 +26,7 @@ module.exports = function(grunt) {
           mangle: {
               except: ['$', 'require']
           },
+          preserveComments: 'some',
           'screw-ie8': true
       },
       client: {

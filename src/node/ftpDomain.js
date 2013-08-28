@@ -1,24 +1,8 @@
 /*
  * Copyright (c) 2013 Tim Burgess. All rights reserved.
  *  
- * Permission is hereby granted, free of charge, to any person obtaining a
- * copy of this software and associated documentation files (the "Software"), 
- * to deal in the Software without restriction, including without limitation 
- * the rights to use, copy, modify, merge, publish, distribute, sublicense, 
- * and/or sell copies of the Software, and to permit persons to whom the 
- * Software is furnished to do so, subject to the following conditions:
- *  
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *  
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
- * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
- * DEALINGS IN THE SOFTWARE.
- * 
+ * @author Tim Burgess <info@tim-burgess.com>
+ * @license Tim Burgess 2013
  */
 
 /*jslint vars: true, plusplus: true, devel: true, nomen: true, indent: 4,
@@ -52,7 +36,7 @@ maxerr: 50, node: true, white: true */
         if (emitOK === undefined) { emitOK = true; }
         ftp.raw.quit(function (err, data) {
             if (emitOK) {
-                _domainManager.emitEvent("ftplite", "disconnected", data.text);
+                _domainManager.emitEvent("ftpsync", "disconnected", data.text);
             }
             console.log(data.text);
             // reset flags
@@ -85,7 +69,7 @@ maxerr: 50, node: true, white: true */
                     console.log('remote mkdir failed:' + err);
                 }
             } else {
-                _domainManager.emitEvent("ftplite", "mkdir", "created " + remotePath);
+                _domainManager.emitEvent("ftpsync", "mkdir", "created " + remotePath);
                 console.log('created remote dir ' + remotePath); }
             return series(ops.shift());
         });
@@ -105,7 +89,7 @@ maxerr: 50, node: true, white: true */
                     console.log('socket error:' + err);
                 });
                 read.on("end", function() {
-                    _domainManager.emitEvent("ftplite", "uploaded", "uploaded " + remotePath);
+                    _domainManager.emitEvent("ftpsync", "uploaded", "uploaded " + remotePath);
                     console.log('uploaded ' + remotePath);
                     return series(ops.shift());
                 });
@@ -141,7 +125,7 @@ maxerr: 50, node: true, white: true */
     // then initiates directory walk
     function checkRemoteDir(err, data) {
         if (err) {
-            _domainManager.emitEvent("ftplite", "error", "Error: remote directory does not exist");
+            _domainManager.emitEvent("ftpsync", "error", "Error: remote directory does not exist");
             console.log('cannot cwd remote root: ' + REMOTEROOT);
             // we'e authed so we need to disconnect
             final(false);
@@ -157,7 +141,7 @@ maxerr: 50, node: true, white: true */
         ftp.raw.cwd(upPath, function (err, res) {
             if (err) {
                 // somehow we had a popup issue, so exit
-                _domainManager.emitEvent("ftplite", "error", "Error: remote directory does not exist");
+                _domainManager.emitEvent("ftpsync", "error", "Error: remote directory does not exist");
                 console.log('cannot cwd remote root: ' + REMOTEROOT);
                 final(false);
                 return;
@@ -218,7 +202,7 @@ maxerr: 50, node: true, white: true */
         // check that local dir exists, walk local fs
         fs.exists(LOCALROOT, function (exists) {
             if (!exists) { 
-                _domainManager.emitEvent("ftplite", "error", LOCALROOT + ' does not exist');
+                _domainManager.emitEvent("ftpsync", "error", LOCALROOT + ' does not exist');
                 console.log('local directory ' + LOCALROOT + ' does not exist');
                 return;
             }
@@ -226,13 +210,13 @@ maxerr: 50, node: true, white: true */
             // connect to remote
             ftp.auth(USER, PWD, function (err, data) {
                 if (err) { 
-                    _domainManager.emitEvent("ftplite", "error", err.toString());
+                    _domainManager.emitEvent("ftpsync", "error", err.toString());
                     console.log('Failed to connect to remote: ' + err);
                     return;
                 }
 
                 // emit connect
-                _domainManager.emitEvent("ftplite", "connected", data.text);
+                _domainManager.emitEvent("ftpsync", "connected", data.text);
                 console.log('Connected ' + data.text);
                 
                 // check REMOTEROOT is a valid directory
@@ -277,13 +261,13 @@ maxerr: 50, node: true, white: true */
      * @param {DomainManager} DomainManager The DomainManager for the server
      */
     function init(DomainManager) {
-        if (!DomainManager.hasDomain("ftplite")) {
-            DomainManager.registerDomain("ftplite", {major: 0, minor: 1});
+        if (!DomainManager.hasDomain("ftpsync")) {
+            DomainManager.registerDomain("ftpsync", {major: 0, minor: 1});
         }
         _domainManager = DomainManager;
 
         DomainManager.registerCommand(
-            "ftplite",       // domain name
+            "ftpsync",       // domain name
             "ftpUpload",    // command name
             cmdFtpUpload,   // function name
             false,          // this command is synchronous
@@ -312,7 +296,7 @@ maxerr: 50, node: true, white: true */
 
 
         DomainManager.registerCommand(
-            "ftplite",       // domain name
+            "ftpsync",       // domain name
             "ftpStop",    // command name
             cmdFtpStop,   // function name
             false,          // this command is synchronous
@@ -323,28 +307,28 @@ maxerr: 50, node: true, white: true */
         );
         
         DomainManager.registerEvent(
-            "ftplite",
+            "ftpsync",
             "connected",
             [{  name: "result",
                 type: "string",
                 description: "result"}]
         );
         DomainManager.registerEvent(
-            "ftplite",
+            "ftpsync",
             "disconnected",
             [{  name: "result",
                 type: "string",
                 description: "result"}]
         );
         DomainManager.registerEvent(
-            "ftplite",
+            "ftpsync",
             "uploaded",
             [{  name: "result",
                 type: "string",
                 description: "result"}]
         );
         DomainManager.registerEvent(
-            "ftplite",
+            "ftpsync",
             "mkdir",
             [{  name: "result",
                 type: "string",
@@ -352,7 +336,7 @@ maxerr: 50, node: true, white: true */
         );
 
         DomainManager.registerEvent(
-            "ftplite",
+            "ftpsync",
             "error",
             [{  name: "result",
                 type: "string",
