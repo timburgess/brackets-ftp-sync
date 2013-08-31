@@ -42,7 +42,7 @@ module.exports = function(grunt) {
     compress: {
         build: {
             options: {
-                archive: 'ftp-sync.zip',
+                archive: 'ftp-sync_<%= pkg.version %>.zip',
                 mode: 'zip'
             },
             files: [
