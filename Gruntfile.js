@@ -21,7 +21,7 @@ module.exports = function(grunt) {
       }
     },
 
-    uglify: {
+    /*uglify: {
       options: {
           mangle: {
               except: ['$', 'require']
@@ -37,7 +37,7 @@ module.exports = function(grunt) {
           src: 'src/node/ftpDomain.js',
           dest: 'build/ftp-sync/node/ftpDomain.js'
       }
-    },
+    },*/
       
     compress: {
         build: {
@@ -54,12 +54,12 @@ module.exports = function(grunt) {
 
   // load copy plugin
   grunt.loadNpmTasks('grunt-contrib-copy');
-  grunt.loadNpmTasks('grunt-contrib-uglify');
+  //grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-contrib-compress');
   grunt.loadNpmTasks('grunt-contrib-clean');
 
   // default
-  grunt.registerTask('default', ['copy','uglify','compress']);
+  grunt.registerTask('default', ['copy','compress']);
 
 
 };
