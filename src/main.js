@@ -21,7 +21,7 @@ define(function (require, exports, module) {
         ExtensionUtils      = brackets.getModule("utils/ExtensionUtils"),
         NodeConnection      = brackets.getModule("utils/NodeConnection"),
         Dialogs             = brackets.getModule("widgets/Dialogs"),
-        FileSystem          = brackets.getModule("file/NativeFileSystem").NativeFileSystem,
+        FileSystem          = brackets.getModule("filesystem/FileSystem"),
         FileUtils           = brackets.getModule("file/FileUtils"),
         Strings             = brackets.getModule("strings");
 
@@ -46,27 +46,29 @@ define(function (require, exports, module) {
     // save settings used in dialog so we can populate future dialog    
     function saveSettings() {
         
-        var destinationDir = ProjectManager.getProjectRoot().fullPath;
-        console.log(destinationDir);        
-        var fileEntry = new FileSystem.FileEntry(destinationDir + ".ftpsyncsettings");
-        var settingsData = JSON.stringify(ftpSettings);
-        FileUtils.writeText(fileEntry, settingsData).done(function () {
-        });
+        //var destinationDir = ProjectManager.getProjectRoot().fullPath;
+        //console.log(destinationDir);        
+        //var fileEntry = new FileSystem.FileEntry(destinationDir + ".ftpsyncsettings");
+        //var settingsData = JSON.stringify(ftpSettings);
+        //FileUtils.writeText(fileEntry, settingsData).done(function () {
+        //});
     }
     
     // pull settings from .ftpsyncsettings
     function readSettings() {
+        
         var destinationDir = ProjectManager.getProjectRoot().fullPath;
 
-        FileSystem.resolveNativeFileSystemPath(destinationDir + ".ftpsyncsettings", function (fileEntry) {
-            FileUtils.readAsText(fileEntry).done(function (text) {
-                // settings file exists so parse
-                ftpSettings = $.parseJSON(text);
-            }).fail(function (error) {
-                // file apparently existed but we can't read it - ignore
-            });
-        }, function (error) {
-            console.log("no existing ftp settings");
+        FileSystem.resolve(destinationDir + ".ftpsyncsettings", function (err, fileEntry) {
+            if (!err) {
+                FileUtils.readAsText(fileEntry).done(function (text) {
+                    // settings file exists so parse
+                    console.log('Parsed .ftpsyncsettings');
+                    ftpSettings = $.parseJSON(text);
+                });
+            } else {
+                console.log("no existing ftp settings");
+            }
         });
     }
     
