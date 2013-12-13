@@ -23,6 +23,9 @@ Tim Burgess
 info@tim-burgess.com
 
 ####History####
+* 2013-12-14: 1.0.2 Release.
+              FTP dialog values (except password) entered now cached.
+              Bugfix long status values impacting dialog layout.
 * 2013-12-12: 1.0.1 Release.
               Tweaks to work with Brackets Sprint 34 FileSystem API changes.
 * 2013-08-01: 1.0.0 Release.
