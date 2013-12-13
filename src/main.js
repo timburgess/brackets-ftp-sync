@@ -43,27 +43,29 @@ define(function (require, exports, module) {
     };
 
 
-    // save settings used in dialog so we can populate future dialog    
+    // save settings used in dialog so we can populate future dialogs
+    // password is never saved
     function saveSettings() {
         
-        //var destinationDir = ProjectManager.getProjectRoot().fullPath;
-        //console.log(destinationDir);        
-        //var fileEntry = new FileSystem.FileEntry(destinationDir + ".ftpsyncsettings");
-        //var settingsData = JSON.stringify(ftpSettings);
-        //FileUtils.writeText(fileEntry, settingsData).done(function () {
-        //});
+        var projectRoot = ProjectManager.getProjectRoot().fullPath;
+        var file = FileSystem.getFileForPath(projectRoot + '.ftpsync_settings');
+
+        function replacePwd(key, value) {
+            if (key=="pwd") return undefined;
+            return value;
+        }
+        FileUtils.writeText(file, JSON.stringify(ftpSettings, replacePwd));
     }
     
-    // pull settings from .ftpsyncsettings
+    // pull saved dialog settings from .ftpsync_settings in project root
     function readSettings() {
         
         var destinationDir = ProjectManager.getProjectRoot().fullPath;
-
-        FileSystem.resolve(destinationDir + ".ftpsyncsettings", function (err, fileEntry) {
+        FileSystem.resolve(destinationDir + ".ftpsync_settings", function (err, fileEntry) {
             if (!err) {
                 FileUtils.readAsText(fileEntry).done(function (text) {
                     // settings file exists so parse
-                    console.log('Parsed .ftpsyncsettings');
+                    console.log('parsed .ftpsync_settings');
                     ftpSettings = $.parseJSON(text);
                 });
             } else {
