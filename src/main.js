@@ -51,7 +51,7 @@ define(function (require, exports, module) {
         var file = FileSystem.getFileForPath(projectRoot + '.ftpsync_settings');
 
         function replacePwd(key, value) {
-            if (key=="pwd") return undefined;
+            if (key==="pwd") return undefined;
             return value;
         }
         FileUtils.writeText(file, JSON.stringify(ftpSettings, replacePwd));
@@ -134,8 +134,8 @@ define(function (require, exports, module) {
         }            
         var $status = $dlg.find("#status");
         msg.split('\n').forEach(function (line) {
-            if (line.length > 66) {
-                line = line.substr(0,66) + "..";
+            if (line.length > 61) {
+                line = line.substr(0,61) + "..";
             }
             $status.html(line);
         });
