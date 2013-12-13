@@ -3,7 +3,7 @@
     "title": "FTP-Sync",
     "description": "FTP upload for Brackets",
     "homepage": "https://github.com/timburgess",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "author": "Tim Burgess (https://github.com/timburgess)",
     "engines": {
         "brackets": ">=0.34.0"
