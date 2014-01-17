@@ -1,8 +1,8 @@
 /*
- * Copyright (c) 2013 Tim Burgess. All rights reserved.
+ * Copyright (c) 2013-2014 Tim Burgess. All rights reserved.
  *
  * @author Tim Burgess <info@tim-burgess.com>
- * @license Tim Burgess 2013
+ * @license Tim Burgess 2014
  */
 
 /*jslint vars: true, plusplus: true, devel: true, nomen: true, indent: 4,
@@ -51,7 +51,7 @@ define(function (require, exports, module) {
         var file = FileSystem.getFileForPath(projectRoot + '.ftpsync_settings');
 
         function replacePwd(key, value) {
-            if (key==="pwd") return undefined;
+            if (key === "pwd") return undefined;
             return value;
         }
         FileUtils.writeText(file, JSON.stringify(ftpSettings, replacePwd));

@@ -1,13 +1,13 @@
 /*
- * Copyright (c) 2013 Tim Burgess. All rights reserved.
+ * Copyright (c) 2013-2014 Tim Burgess. All rights reserved.
  *  
  * @author Tim Burgess <info@tim-burgess.com>
- * @license Tim Burgess 2013
+ * @license Tim Burgess 2014
  */
 
 /*jslint vars: true, plusplus: true, devel: true, nomen: true, indent: 4,
 maxerr: 50, node: true, white: true */
-/*global */
+/* global */
 
 (function () {
     "use strict";
@@ -154,10 +154,12 @@ maxerr: 50, node: true, white: true */
                     final(false);
                     return;
                 }
-            
+                console.log(data);
+                
                 var raw = data.text.split(' ')[1];
                 // strip out quotes in path
-                var prefix = raw.replace(/\"/g, "") + '/';
+                var prefix = raw.replace(/\"/g, "");
+                if (prefix[prefix.length-1] !== '/') prefix += '/';
                 console.log('logged in at ' + prefix);
                 REMOTEROOT = prefix + REMOTEROOT;
                 console.log('full remote path is ' + REMOTEROOT);
@@ -169,6 +171,8 @@ maxerr: 50, node: true, white: true */
         
                     var files = fs.readdirSync(fullPath);
                     for (i in files) {
+                        console.log('file:' + files[i]);
+                        //debugger;
                         // ignore hiddenfiles
                         if (files[i].substring(0, 1) !== '.') {
         
