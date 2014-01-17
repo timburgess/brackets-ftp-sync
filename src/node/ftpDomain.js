@@ -77,7 +77,7 @@ maxerr: 50, node: true, white: true */
     
     // push up a copy of local file
     function putOp(localPath, remotePath) {
-    
+        console.log(remotePath);   
         ftp.getPutSocket(remotePath, function (err, socket) {
             if (err) {
                 console.log('socket fail:' + err);
@@ -171,8 +171,6 @@ maxerr: 50, node: true, white: true */
         
                     var files = fs.readdirSync(fullPath);
                     for (i in files) {
-                        console.log('file:' + files[i]);
-                        //debugger;
                         // ignore hiddenfiles
                         if (files[i].substring(0, 1) !== '.') {
         
@@ -181,6 +179,7 @@ maxerr: 50, node: true, white: true */
                             var stats = fs.statSync(currentFile);
         
                             if (stats.isFile()) {
+                                console.log('pushing file:' + remotePath);
                                 ops.push([statOp, currentFile, remotePath]);
                                 // start ops now we have an op
                                 if (!processOps) {
@@ -189,6 +188,7 @@ maxerr: 50, node: true, white: true */
                                 }
                                 
                             } else if (stats.isDirectory()) {
+                                console.log('pushing dir:' + remotePath);
                                 ops.push([dirOp, currentFile, remotePath]);
                                 walkFileSystem(pathSuffix + files[i] + '/');
                             } // ignore other types
