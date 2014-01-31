@@ -62,7 +62,7 @@ maxerr: 50, node: true, white: true */
     
     // make a remote dir
     function dirOp(localPath, remotePath) {
-    
+        console.log('mkdir ' + remotePath);
         ftp.raw.mkd(remotePath, function (err) {
             if (err) {
                 if (err.code !== 550) {
@@ -77,7 +77,7 @@ maxerr: 50, node: true, white: true */
     
     // push up a copy of local file
     function putOp(localPath, remotePath) {
-        console.log(remotePath);   
+        console.log('putting ' + remotePath);   
         ftp.getPutSocket(remotePath, function (err, socket) {
             if (err) {
                 console.log('socket fail:' + err);
@@ -99,7 +99,7 @@ maxerr: 50, node: true, white: true */
     
     // stat remote file. add dirOp or pushOp if required
     function statOp(localPath, remotePath) {
-        
+        console.log('stating ' + remotePath);
         ftp.ls(remotePath, function (err, res) {
             if (err) {
                 console.log('cannot stat remote file:' + err);
@@ -179,7 +179,7 @@ maxerr: 50, node: true, white: true */
                             var stats = fs.statSync(currentFile);
         
                             if (stats.isFile()) {
-                                console.log('pushing file:' + remotePath);
+                                //console.log('pushing file:' + remotePath);
                                 ops.push([statOp, currentFile, remotePath]);
                                 // start ops now we have an op
                                 if (!processOps) {
@@ -188,7 +188,7 @@ maxerr: 50, node: true, white: true */
                                 }
                                 
                             } else if (stats.isDirectory()) {
-                                console.log('pushing dir:' + remotePath);
+                                //console.log('pushing dir:' + remotePath);
                                 ops.push([dirOp, currentFile, remotePath]);
                                 walkFileSystem(pathSuffix + files[i] + '/');
                             } // ignore other types
