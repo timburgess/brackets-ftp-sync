@@ -1,4 +1,4 @@
-### An FTP client for Adobe Brackets ###
+# An FTP client for Adobe Brackets
 
 FTP-Sync provides a simple straightforward means of synchronizing your project changes in Brackets with a remote FTP server
 
@@ -7,7 +7,7 @@ It is available via the Brackets Extension Registry so for the latest version, s
 
 At present, FTP Sync requires Brackets version 34 or later (due to the new FileSystem API).
 
-If you want to install manually and/or digest the code, the root level of this project contains a zip file. This zip file can be dropped and then expanded into either the Brackets extensions folder or /brackets/src/extensions/dev if working with the Brackets source.
+If you want to install manually and/or digest the code, the root level of this project contains a zip file. This zip file can be dropped and then expanded into either the Brackets extensions folder or `/brackets/src/extensions/dev` if working with the Brackets source.
 
 ####Using####
 
@@ -23,6 +23,10 @@ Happy FTPing,
 
 Tim Burgess
 info@tim-burgess.com
+
+#### Bug Reporting ####
+
+If you would like to report a bug, please do so with a [Github issue] (https://github.com/timburgess/brackets-ftp-sync/issues). This allows for all issues to be publically visible and help others if they are having the same problem. The more information you can provide i.e. `Brackets version`, `console log` - the more likely I am to be able to reproduce the issue.
 
 ####History####
 * 2013-12-14: 1.0.2 Release.
