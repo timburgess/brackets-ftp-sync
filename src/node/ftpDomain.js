@@ -30,15 +30,17 @@ maxerr: 50, node: true, white: true */
     var haltCalled = false;
     var ops = [];
     
+    var emit = true;
+    
 
-        
+    
     function final(emitOK) {
         if (emitOK === undefined) { emitOK = true; }
         ftp.raw.quit(function (err, data) {
             if (emitOK) {
-                _domainManager.emitEvent("ftpsync", "disconnected", data.text);
+                emit && _domainManager.emitEvent("ftpsync", "disconnected", data.text);
             }
-            console.log(data.text);
+            console.log('quit:' + data.text);
             // reset flags
             processOps = false;
             haltCalled = false;
@@ -69,33 +71,25 @@ maxerr: 50, node: true, white: true */
                     console.log('remote mkdir failed:' + err);
                 }
             } else {
-                _domainManager.emitEvent("ftpsync", "mkdir", "created " + remotePath);
+                emit && _domainManager.emitEvent("ftpsync", "mkdir", "created " + remotePath);
                 console.log('created remote dir ' + remotePath); }
             return series(ops.shift());
         });
     }
     
-    // push up a copy of local file
+    
     function putOp(localPath, remotePath) {
-        console.log('putting ' + remotePath);   
-        ftp.getPutSocket(remotePath, function (err, socket) {
+        var readStream = fs.createReadStream(localPath);
+        ftp.put(readStream, remotePath, function(err) {
             if (err) {
-                console.log('socket fail:' + err);
-            } else {
-                var read = fs.createReadStream(localPath, { bufferSize: 4 * 1024 });
-                // socket is a writeable stream
-                read.pipe(socket);
-                read.on("error", function(err) {
-                    console.log('socket error:' + err);
-                });
-                read.on("end", function() {
-                    _domainManager.emitEvent("ftpsync", "uploaded", "uploaded " + remotePath);
-                    console.log('uploaded ' + remotePath);
-                    return series(ops.shift());
-                });
+                console.log('upload error:' + err);
             }
+            emit && _domainManager.emitEvent("ftpsync", "uploaded", "uploaded " + remotePath);
+            console.log('uploaded ' + remotePath);
+            return series(ops.shift());
         });
     }
+
     
     // stat remote file. add dirOp or pushOp if required
     function statOp(localPath, remotePath) {
@@ -125,7 +119,7 @@ maxerr: 50, node: true, white: true */
     // then initiates directory walk
     function checkRemoteDir(err, data) {
         if (err) {
-            _domainManager.emitEvent("ftpsync", "error", "Error: remote directory does not exist");
+            emit && _domainManager.emitEvent("ftpsync", "error", "Error: remote directory does not exist");
             console.log('cannot cwd remote root: ' + REMOTEROOT);
             // we'e authed so we need to disconnect
             final(false);
@@ -141,7 +135,7 @@ maxerr: 50, node: true, white: true */
         ftp.raw.cwd(upPath, function (err, res) {
             if (err) {
                 // somehow we had a popup issue, so exit
-                _domainManager.emitEvent("ftpsync", "error", "Error: remote directory does not exist");
+                emit && _domainManager.emitEvent("ftpsync", "error", "Error: remote directory does not exist");
                 console.log('cannot cwd remote root: ' + REMOTEROOT);
                 final(false);
                 return;
@@ -206,7 +200,7 @@ maxerr: 50, node: true, white: true */
         // check that local dir exists, walk local fs
         fs.exists(LOCALROOT, function (exists) {
             if (!exists) { 
-                _domainManager.emitEvent("ftpsync", "error", LOCALROOT + ' does not exist');
+                emit && _domainManager.emitEvent("ftpsync", "error", LOCALROOT + ' does not exist');
                 console.log('local directory ' + LOCALROOT + ' does not exist');
                 return;
             }
@@ -214,13 +208,13 @@ maxerr: 50, node: true, white: true */
             // connect to remote
             ftp.auth(USER, PWD, function (err, data) {
                 if (err) { 
-                    _domainManager.emitEvent("ftpsync", "error", err.toString());
+                    emit && _domainManager.emitEvent("ftpsync", "error", err.toString());
                     console.log('Failed to connect to remote: ' + err);
                     return;
                 }
 
                 // emit connect
-                _domainManager.emitEvent("ftpsync", "connected", data.text);
+                emit && _domainManager.emitEvent("ftpsync", "connected", data.text);
                 console.log('Connected ' + data.text);
                 
                 // check REMOTEROOT is a valid directory
