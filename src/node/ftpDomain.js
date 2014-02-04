@@ -5,16 +5,19 @@
  * @license Tim Burgess 2014
  */
 
-/*jslint vars: true, plusplus: true, devel: true, nomen: true, indent: 4,
+/*jslint vars: true, evil:true,sloppy:true,plusplus: true, devel: true, nomen: true, indent: 4,
 maxerr: 50, node: true, white: true */
-/* global */
+/*globals HOST:true,PORT:true,USER:true,PWD:true*/
 
 (function () {
     "use strict";
     
     var os = require("os"),
-     JSFtp = require("jsftp"),
-        fs = require("fs");
+        fs = require("fs"),
+     JSFtp = require("jsftp");
+
+    //eval(fs.readFileSync('core.js').toString());
+    
     
     var _domainManager;
 
@@ -40,7 +43,7 @@ maxerr: 50, node: true, white: true */
             if (emitOK) {
                 emit && _domainManager.emitEvent("ftpsync", "disconnected", data.text);
             }
-            console.log('quit:' + data.text);
+            console.log('quit: ' + data.text);
             // reset flags
             processOps = false;
             haltCalled = false;
