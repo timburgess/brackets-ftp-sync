@@ -16,7 +16,8 @@ module.exports = function(grunt) {
       main: {
           expand: true,
           cwd: 'src/',
-          src: '**',
+          // exclude unwanted jsftp modules
+          src: ['**','!**/test/**','!**/ftp-test-server/**','!**/mocha/**','!**/istanbul/**','!**/mocha-istanbul/**','!**/rimraf/**','!**/sinon/**'],
           dest: 'build/ftp-sync'
       }
     },
