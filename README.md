@@ -29,11 +29,21 @@ info@tim-burgess.com
 If you would like to report a bug, please do so with a [Github issue] (https://github.com/timburgess/brackets-ftp-sync/issues). This allows for all issues to be publically visible and help others if they are having the same problem. The more information you can provide i.e. `Brackets version`, `console log` - the more likely I am to be able to reproduce the issue.
 
 ####History####
-* 2013-12-14: 1.0.2 Release.
-              FTP dialog values (except password) entered now cached.
-              Bugfix long status values impacting dialog layout.
-* 2013-12-12: 1.0.1 Release.
-              Tweaks to work with Brackets Sprint 34 FileSystem API changes.
-* 2013-08-01: 1.0.0 Release.
-              Initial release of codebase.
+2014-02-06: 1.0.3 Release
+
+Fixed insidious FTP PUT bugs.
+Timeouts, non-existent hosts and other user errors handled much better.
+
+2013-12-14: 1.0.2 Release
+
+FTP dialog values (except password) entered now cached.
+Bugfixed long status values impacting dialog layout.
+              
+2013-12-12: 1.0.1 Release
+
+Tweaks to work with Brackets Sprint 34 FileSystem API changes.
+
+2013-08-01: 1.0.0 Release
+
+Initial release of codebase.
 
