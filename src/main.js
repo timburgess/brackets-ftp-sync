@@ -120,7 +120,7 @@ define(function (require, exports, module) {
             // remove spinner if active
             $dlg.find(".spinner").removeClass("spin");
             $dlg.find("#status").html(msg);
-            // do this in reed
+            inProcess = false;
             return;
         }
             

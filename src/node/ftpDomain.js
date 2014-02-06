@@ -5,19 +5,19 @@
  * @license Tim Burgess 2014
  */
 
-/*jslint vars: true, evil:true,sloppy:true,plusplus: true, devel: true, nomen: true, indent: 4,
+/*jslint vars: true, plusplus: true, devel: true, nomen: true, indent: 4,
 maxerr: 50, node: true, white: true */
 /*globals HOST:true,PORT:true,USER:true,PWD:true*/
+
+
 
 (function () {
     "use strict";
     
-    var os = require("os"),
-        fs = require("fs"),
+    var fs = require("fs"),
+    domain = require('domain').create(),
      JSFtp = require("jsftp");
 
-    //eval(fs.readFileSync('core.js').toString());
-    
     
     var _domainManager;
 
@@ -34,6 +34,18 @@ maxerr: 50, node: true, white: true */
     var ops = [];
     
     var emit = true;
+    
+
+    // domain to catch exceptions e.g. ETIMEDOUT, ENOTFOUND
+    domain.on('error', function (err) {
+        if (err.code === 'ENOTFOUND') {
+            emit && _domainManager.emitEvent("ftpsync", "error", "Host not found");
+        } else if (err.code === 'ETIMEDOUT') {
+            emit && _domainManager.emitEvent("ftpsync", "error", "Connect to host timed out");
+        }
+        haltCalled = true;
+        console.log(err);
+    });
     
 
     
@@ -207,15 +219,16 @@ maxerr: 50, node: true, white: true */
                 console.log('local directory ' + LOCALROOT + ' does not exist');
                 return;
             }
-            
+
             // connect to remote
             ftp.auth(USER, PWD, function (err, data) {
+                // callback never happens if ETIMEDOUT or ENOTFOUND occurs
                 if (err) { 
                     emit && _domainManager.emitEvent("ftpsync", "error", err.toString());
                     console.log('Failed to connect to remote: ' + err);
                     return;
                 }
-
+                
                 // emit connect
                 emit && _domainManager.emitEvent("ftpsync", "connected", data.text);
                 console.log('Connected ' + data.text);
@@ -225,7 +238,6 @@ maxerr: 50, node: true, white: true */
             });
         });
     }
-                            
 
     
     /**
@@ -241,9 +253,14 @@ maxerr: 50, node: true, white: true */
         LOCALROOT = localroot;
         REMOTEROOT = remoteroot;
         
+        // catch exceptions
+        domain.enter();
+        
         ftp = new JSFtp({ host: HOST, port: PORT });
         
         connect();
+        
+        domain.exit();
         
     }
 
@@ -335,7 +352,6 @@ maxerr: 50, node: true, white: true */
                 type: "string",
                 description: "result"}]
         );
-
         DomainManager.registerEvent(
             "ftpsync",
             "error",
