@@ -51,9 +51,15 @@ define(function (require, exports, module) {
         var file = FileSystem.getFileForPath(projectRoot + '.ftpsync_settings');
 
         function replacePwd(key, value) {
+            if (key === "pwd") return undefined;
             return value;
         }
-        FileUtils.writeText(file, JSON.stringify(ftpSettings, replacePwd));
+        // if save password is checked, no need to remove pwd from settings
+        if (ftpSettings.savepwd == 'checked') {
+        	FileUtils.writeText(file, JSON.stringify(ftpSettings));
+        } else {
+        	FileUtils.writeText(file, JSON.stringify(ftpSettings, replacePwd));
+        }
     }
     
     // pull saved dialog settings from .ftpsync_settings in project root
@@ -82,6 +88,7 @@ define(function (require, exports, module) {
         ftpSettings.port = $dlg.find("#port").val();
         ftpSettings.user = $dlg.find("#user").val();
         ftpSettings.pwd = $dlg.find("#pwd").val();
+        ftpSettings.savepwd = $dlg.find("#savepwd:checked").val();
         ftpSettings.remoteRoot = $dlg.find("#remoteroot").val();
 
         saveSettings();
@@ -155,6 +162,7 @@ define(function (require, exports, module) {
             port: ftpSettings.port,
             user: ftpSettings.user,
             pwd: ftpSettings.pwd,
+            savepwd: ftpSettings.savepwd,
             remoteroot: ftpSettings.remoteRoot,
             Strings: Strings
         };
