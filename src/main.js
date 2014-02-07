@@ -51,7 +51,6 @@ define(function (require, exports, module) {
         var file = FileSystem.getFileForPath(projectRoot + '.ftpsync_settings');
 
         function replacePwd(key, value) {
-            if (key === "pwd") return undefined;
             return value;
         }
         FileUtils.writeText(file, JSON.stringify(ftpSettings, replacePwd));
@@ -154,7 +153,8 @@ define(function (require, exports, module) {
         var templateVars = {
             host: ftpSettings.host,
             port: ftpSettings.port,
-            user: ftpSettings.user, // don't populate pwd field
+            user: ftpSettings.user,
+            pwd: ftpSettings.pwd,
             remoteroot: ftpSettings.remoteRoot,
             Strings: Strings
         };
