@@ -38,6 +38,7 @@ define(function (require, exports, module) {
         port : "21",
         user : "",
         pwd : "",
+        savepwd: "",
         localRoot : "",
         remoteRoot : ""
     };
