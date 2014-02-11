@@ -1,0 +1,12 @@
+{
+  "name": "ftp-sync",
+  "version": "1.0.4",
+  "repository": {
+    "type": "git",
+    "url": "http://github.com/timburgess/ftp-sync.git"
+  },
+  "devDependencies": {
+    "rimraf": "~2.2.6"
+  }
+}
+
