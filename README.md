@@ -28,6 +28,10 @@ info@tim-burgess.com
 
 If you would like to report a bug, please do so with a [Github issue] (https://github.com/timburgess/brackets-ftp-sync/issues). This allows for all issues to be publically visible and help others if they are having the same problem. When submitting an issue, please state the `Brackets version` and use `Debug->Show Developer Tools` to _show what happens_ in the javascript console when your issue occurs.
 
+#### Test framework ####
+
+A test framework using _mocha_ is now present in `src/node/test`.
+
 ####History####
 2014-02-06: 1.0.3 Release
 
