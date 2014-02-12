@@ -21,10 +21,6 @@ maxerr: 50, node: true, white: true */
 
   var _domainManager;
 
-  var HOST;
-  var PORT;
-  var USER;
-  var PWD;
   var LOCALROOT;
   var REMOTEROOT;
 
@@ -45,6 +41,11 @@ maxerr: 50, node: true, white: true */
     }
     console.log(err);
   });
+  
+  function halt() {
+    haltCalled = true;
+    console.log('halt called');
+  }
 
   
   function final(emitOK) {
@@ -194,10 +195,6 @@ maxerr: 50, node: true, white: true */
         
   function connect(host, port, user, pwd, localroot, remoteroot, domainManager) {
 
-    HOST = host;
-    PORT = port;
-    USER = user;
-    PWD  = pwd;
     LOCALROOT = localroot;
     REMOTEROOT = remoteroot;
     _domainManager = domainManager;
@@ -213,12 +210,12 @@ maxerr: 50, node: true, white: true */
       }
       
       ftp = new JSFtp({
-          host: HOST
+          host: host
       });
       
 
       // connect to remote
-      ftp.auth(USER, PWD, function (err, data) {
+      ftp.auth(user, pwd, function (err, data) {
           if (err) { 
               _domainManager.emitEvent("ftpsync", "error", err.toString());
               console.log('Failed to connect to remote: ' + err);
@@ -238,6 +235,7 @@ maxerr: 50, node: true, white: true */
   }
   
   exports.connect = connect;
+  exports.halt = halt;
   
 }());
 
