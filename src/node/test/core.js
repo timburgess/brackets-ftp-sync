@@ -36,7 +36,7 @@ maxerr: 50, node: true, white: true */
   // constructor
   var self = exports;
 
-  /* domain to catch any exceptions e.g. timeout
+  // domain to catch any exceptions e.g. timeout
   domain.on('error', function (err) {
     if (err.code === 'ENOTFOUND') {
         _domainManager.emitEvent("ftpsync", "error", "Host not found");
@@ -44,7 +44,7 @@ maxerr: 50, node: true, white: true */
         _domainManager.emitEvent("ftpsync", "error", "Connect to host timed out");
     }
     console.log(err);
-  });*/
+  });
 
   
   function final(emitOK) {
@@ -202,7 +202,7 @@ maxerr: 50, node: true, white: true */
     REMOTEROOT = remoteroot;
     _domainManager = domainManager;
     
-    //    domain.enter();
+    domain.enter();
 
     // check that local dir exists, walk local fs
     fs.exists(LOCALROOT, function (exists) {
@@ -219,7 +219,6 @@ maxerr: 50, node: true, white: true */
 
       // connect to remote
       ftp.auth(USER, PWD, function (err, data) {
-//          debugger;
           if (err) { 
               _domainManager.emitEvent("ftpsync", "error", err.toString());
               console.log('Failed to connect to remote: ' + err);
@@ -235,7 +234,7 @@ maxerr: 50, node: true, white: true */
       });
     });
 
-//    domain.exit();
+    domain.exit();
   }
   
   exports.connect = connect;
