@@ -36,7 +36,7 @@ maxerr: 50, node: true, white: true, evil: true */
   var config = require('./config.json');
   
   // load node-side
-  var ftpsync = require("./core.js");
+  var ftpsync = require("../core.js");
   
   // mock domainmanager for event capture
   var _domainManager = new MockDomainManager();
