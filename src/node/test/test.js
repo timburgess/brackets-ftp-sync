@@ -51,115 +51,213 @@ maxerr: 50, node: true, white: true, evil: true */
   // where the remote root directory is located locally
   // A directory named ftptest will be created here for testing 
   var LOCALPATH;
+  
+  // before each test, rm -rf ftptest
+  describe('FTP-Sync', function() {
 
-  describe('test1A:', function() {
-    
-    it('sync file changes', function(done) {
-      LOCALROOT = "./testdata/test1";
-      REMOTEROOT = "ftptest/public_html";
-      LOCALPATH = LOCALPREFIX + '/' + REMOTEROOT;
+    beforeEach(function(done) {
+      rimraf.sync(LOCALPREFIX + '/ftptest');
+      done();
+    });
+               
+    describe('tests', function() {
 
-      // empty remoteroot
-      rimraf.sync(LOCALPATH);
-      fs.mkdirSync(LOCALPATH);
-
-      ftpsync.connect(HOST, PORT, USER, PWD, LOCALROOT, REMOTEROOT, _domainManager);
-
-      // wait for disconnect and then assert files exist
-      _domainManager.once('disconnected', function() {
-
-        // assert file state
-        stats = fs.statSync(LOCALPATH + '/bin.py');
-        assert.equal(stats.size, 220);
-        stats = fs.statSync(LOCALPATH + '/index.html');
-        assert.equal(stats.size, 136);
-        stats = fs.statSync(LOCALPATH + '/re.py');
-        assert.equal(stats.size, 444);
-
-        LOCALROOT = "./testdata/test1A";
-        ftpsync.connect(HOST, PORT, USER, PWD, LOCALROOT, REMOTEROOT, _domainManager);
+      it('sync file changes', function(done) {
         
+        LOCALROOT = "./testdata/test1";
+        REMOTEROOT = "ftptest/public_html";
+        LOCALPATH = LOCALPREFIX + '/' + REMOTEROOT;
+
+        // create public_html dir
+        fs.mkdirSync(LOCALPREFIX + '/ftptest');
+        fs.mkdirSync(LOCALPATH);
+
+        ftpsync.connect(HOST, PORT, USER, PWD, LOCALROOT, REMOTEROOT, _domainManager);
+
+        // wait for disconnect and then assert files exist
         _domainManager.once('disconnected', function() {
 
           // assert file state
           stats = fs.statSync(LOCALPATH + '/bin.py');
           assert.equal(stats.size, 220);
-          stats = fs.statSync(LOCALPATH + '/foo.html');
-          assert.equal(stats.size, 72);
           stats = fs.statSync(LOCALPATH + '/index.html');
-          assert.equal(stats.size, 165);
+          assert.equal(stats.size, 136);
           stats = fs.statSync(LOCALPATH + '/re.py');
+          assert.equal(stats.size, 444);
+
+          LOCALROOT = "./testdata/test1A";
+          ftpsync.connect(HOST, PORT, USER, PWD, LOCALROOT, REMOTEROOT, _domainManager);
+
+          _domainManager.once('disconnected', function() {
+
+            // assert file state
+            stats = fs.statSync(LOCALPATH + '/bin.py');
+            assert.equal(stats.size, 220);
+            stats = fs.statSync(LOCALPATH + '/foo.html');
+            assert.equal(stats.size, 72);
+            stats = fs.statSync(LOCALPATH + '/index.html');
+            assert.equal(stats.size, 165);
+            stats = fs.statSync(LOCALPATH + '/re.py');
+            assert.equal(stats.size, 444);
+            done();
+          });
+        });
+      });
+      
+      it('sync dir and file changes', function(done) {
+        LOCALROOT = "./testdata/test2";
+        REMOTEROOT = "ftptest/public_html";
+        LOCALPATH = LOCALPREFIX + '/' + REMOTEROOT;
+
+        // create public_html dir
+        fs.mkdirSync(LOCALPREFIX + '/ftptest');
+        fs.mkdirSync(LOCALPATH);
+
+        ftpsync.connect(HOST, PORT, USER, PWD, LOCALROOT, REMOTEROOT, _domainManager);
+
+        // wait for disconnect and then assert files exist
+        _domainManager.once('disconnected', function() {
+
+          // assert file state
+          stats = fs.statSync(LOCALPATH + '/bin.py');
+          assert.equal(stats.size, 220);
+          stats = fs.statSync(LOCALPATH + '/index.html');
+          assert.equal(stats.size, 136);
+          // check for presence of subdir and file inside
+          stats = fs.statSync(LOCALPATH + '/code');
+          assert(stats.isDirectory);
+          stats = fs.statSync(LOCALPATH + '/code/re.py');
           assert.equal(stats.size, 444);
           done();
         });
       });
-    });
 
-    
-    it('sync dir and file changes', function(done) {
-      LOCALROOT = "./testdata/test2";
-      REMOTEROOT = "ftptest/public_html";
-      LOCALPATH = LOCALPREFIX + '/' + REMOTEROOT;
+      it('sync directory structure to ftp root', function(done) {
+        LOCALROOT = "./testdata/test3";
+        REMOTEROOT = ".";
+        LOCALPATH = LOCALPREFIX;
 
-      // empty remoteroot
-      rimraf.sync(LOCALPATH);
-      fs.mkdirSync(LOCALPATH);
+        ftpsync.connect(HOST, PORT, USER, PWD, LOCALROOT, REMOTEROOT, _domainManager);
 
-      ftpsync.connect(HOST, PORT, USER, PWD, LOCALROOT, REMOTEROOT, _domainManager);
+        // wait for disconnect and then assert files exist
+        _domainManager.once('disconnected', function() {
 
-      // wait for disconnect and then assert files exist
-      _domainManager.once('disconnected', function() {
-
-        // assert file state
-        stats = fs.statSync(LOCALPATH + '/bin.py');
-        assert.equal(stats.size, 220);
-        stats = fs.statSync(LOCALPATH + '/index.html');
-        assert.equal(stats.size, 136);
-        // check for presence of subdir and file inside
-        stats = fs.statSync(LOCALPATH + '/code');
-        assert(stats.isDirectory);
-        stats = fs.statSync(LOCALPATH + '/code/re.py');
-        assert.equal(stats.size, 444);
-
-        done();
+          // check for presence of subdir and file inside
+          stats = fs.statSync(LOCALPATH + '/ftptest');
+          assert(stats.isDirectory);
+          stats = fs.statSync(LOCALPATH + '/ftptest/application');
+          assert(stats.isDirectory);
+          stats = fs.statSync(LOCALPATH + '/ftptest/application/cache');
+          assert(stats.isDirectory);
+          stats = fs.statSync(LOCALPATH + '/ftptest/application/cache/index.html');
+          assert.equal(stats.size, 136);
+          stats = fs.statSync(LOCALPATH + '/ftptest/application/views');
+          assert(stats.isDirectory);
+          stats = fs.statSync(LOCALPATH + '/ftptest/application/views/generix');
+          assert(stats.isDirectory);
+          stats = fs.statSync(LOCALPATH + '/ftptest/application/views/generix/bogus.php');
+          assert.equal(stats.size, 444);
+          stats = fs.statSync(LOCALPATH + '/ftptest/application/views/generix/some_long_filename.php');
+          assert.equal(stats.size, 220);
+          done();
+        });
       });
-    });
+      
+      it('sync directory structure to empty string remoteroot', function(done) {
+        LOCALROOT = "./testdata/test3";
+        REMOTEROOT = "";
+        LOCALPATH = LOCALPREFIX;
 
-    
-    it('sync directory structure to root', function(done) {
-      LOCALROOT = "./testdata/test3";
-      REMOTEROOT = ".";
-      LOCALPATH = LOCALPREFIX;
+        ftpsync.connect(HOST, PORT, USER, PWD, LOCALROOT, REMOTEROOT, _domainManager);
 
-      // do NOT empty remoteroot as it could be users homedir
+        // wait for disconnect and then assert files exist
+        _domainManager.once('disconnected', function() {
 
-      ftpsync.connect(HOST, PORT, USER, PWD, LOCALROOT, REMOTEROOT, _domainManager);
-
-      // wait for disconnect and then assert files exist
-      _domainManager.once('disconnected', function() {
-
-        // check for presence of subdir and file inside
-        stats = fs.statSync(LOCALPATH + '/ftptest');
-        assert(stats.isDirectory);
-        stats = fs.statSync(LOCALPATH + '/ftptest/application');
-        assert(stats.isDirectory);
-        stats = fs.statSync(LOCALPATH + '/ftptest/application/cache');
-        assert(stats.isDirectory);
-        stats = fs.statSync(LOCALPATH + '/ftptest/application/cache/index.html');
-        assert.equal(stats.size, 136);
-        stats = fs.statSync(LOCALPATH + '/ftptest/application/views');
-        assert(stats.isDirectory);
-        stats = fs.statSync(LOCALPATH + '/ftptest/application/views/generix');
-        assert(stats.isDirectory);
-        stats = fs.statSync(LOCALPATH + '/ftptest/application/views/generix/bogus.php');
-        assert.equal(stats.size, 444);
-        stats = fs.statSync(LOCALPATH + '/ftptest/application/views/generix/some_long_filename.php');
-        assert.equal(stats.size, 220);
-        done();
+          // check for presence of subdir and file inside
+          stats = fs.statSync(LOCALPATH + '/ftptest');
+          assert(stats.isDirectory);
+          stats = fs.statSync(LOCALPATH + '/ftptest/application');
+          assert(stats.isDirectory);
+          stats = fs.statSync(LOCALPATH + '/ftptest/application/cache');
+          assert(stats.isDirectory);
+          stats = fs.statSync(LOCALPATH + '/ftptest/application/cache/index.html');
+          assert.equal(stats.size, 136);
+          stats = fs.statSync(LOCALPATH + '/ftptest/application/views');
+          assert(stats.isDirectory);
+          stats = fs.statSync(LOCALPATH + '/ftptest/application/views/generix');
+          assert(stats.isDirectory);
+          stats = fs.statSync(LOCALPATH + '/ftptest/application/views/generix/bogus.php');
+          assert.equal(stats.size, 444);
+          stats = fs.statSync(LOCALPATH + '/ftptest/application/views/generix/some_long_filename.php');
+          assert.equal(stats.size, 220);
+          done();
+        });
       });
-    });
 
-    
+      it('sync directory structure to null remoteroot', function(done) {
+        LOCALROOT = "./testdata/test3";
+        REMOTEROOT = null;
+        LOCALPATH = LOCALPREFIX;
+
+        ftpsync.connect(HOST, PORT, USER, PWD, LOCALROOT, REMOTEROOT, _domainManager);
+
+        // wait for disconnect and then assert files exist
+        _domainManager.once('disconnected', function() {
+
+          // check for presence of subdir and file inside
+          stats = fs.statSync(LOCALPATH + '/ftptest');
+          assert(stats.isDirectory);
+          stats = fs.statSync(LOCALPATH + '/ftptest/application');
+          assert(stats.isDirectory);
+          stats = fs.statSync(LOCALPATH + '/ftptest/application/cache');
+          assert(stats.isDirectory);
+          stats = fs.statSync(LOCALPATH + '/ftptest/application/cache/index.html');
+          assert.equal(stats.size, 136);
+          stats = fs.statSync(LOCALPATH + '/ftptest/application/views');
+          assert(stats.isDirectory);
+          stats = fs.statSync(LOCALPATH + '/ftptest/application/views/generix');
+          assert(stats.isDirectory);
+          stats = fs.statSync(LOCALPATH + '/ftptest/application/views/generix/bogus.php');
+          assert.equal(stats.size, 444);
+          stats = fs.statSync(LOCALPATH + '/ftptest/application/views/generix/some_long_filename.php');
+          assert.equal(stats.size, 220);
+          done();
+        });
+      });
+
+      it('sync directory structure to undefined remoteroot', function(done) {
+        LOCALROOT = "./testdata/test3";
+        REMOTEROOT = undefined;
+        LOCALPATH = LOCALPREFIX;
+
+        ftpsync.connect(HOST, PORT, USER, PWD, LOCALROOT, REMOTEROOT, _domainManager);
+
+        // wait for disconnect and then assert files exist
+        _domainManager.once('disconnected', function() {
+
+          // check for presence of subdir and file inside
+          stats = fs.statSync(LOCALPATH + '/ftptest');
+          assert(stats.isDirectory);
+          stats = fs.statSync(LOCALPATH + '/ftptest/application');
+          assert(stats.isDirectory);
+          stats = fs.statSync(LOCALPATH + '/ftptest/application/cache');
+          assert(stats.isDirectory);
+          stats = fs.statSync(LOCALPATH + '/ftptest/application/cache/index.html');
+          assert.equal(stats.size, 136);
+          stats = fs.statSync(LOCALPATH + '/ftptest/application/views');
+          assert(stats.isDirectory);
+          stats = fs.statSync(LOCALPATH + '/ftptest/application/views/generix');
+          assert(stats.isDirectory);
+          stats = fs.statSync(LOCALPATH + '/ftptest/application/views/generix/bogus.php');
+          assert.equal(stats.size, 444);
+          stats = fs.statSync(LOCALPATH + '/ftptest/application/views/generix/some_long_filename.php');
+          assert.equal(stats.size, 220);
+          done();
+        });
+      });
+
+      
+    });  
   });
 
 }());
