@@ -55,7 +55,6 @@ maxerr: 50, node: true, white: true, evil: true */
   describe('test1A:', function() {
     
     it('sync file changes', function(done) {
-//      LOCALROOT = "/Users/tim/work/ftp-sync/src/node/test/testdata/test1";
       LOCALROOT = "./testdata/test1";
       REMOTEROOT = "ftptest/public_html";
       LOCALPATH = LOCALPREFIX + '/' + REMOTEROOT;
@@ -77,7 +76,6 @@ maxerr: 50, node: true, white: true, evil: true */
         stats = fs.statSync(LOCALPATH + '/re.py');
         assert.equal(stats.size, 444);
 
-//        LOCALROOT = "/Users/tim/work/ftp-sync/src/node/test/testdata/test1A";
         LOCALROOT = "./testdata/test1A";
         ftpsync.connect(HOST, PORT, USER, PWD, LOCALROOT, REMOTEROOT, _domainManager);
         
@@ -99,7 +97,6 @@ maxerr: 50, node: true, white: true, evil: true */
 
     
     it('sync dir and file changes', function(done) {
-//      LOCALROOT = "/Users/tim/work/ftp-sync/src/node/test/testdata/test2";
       LOCALROOT = "./testdata/test2";
       REMOTEROOT = "ftptest/public_html";
       LOCALPATH = LOCALPREFIX + '/' + REMOTEROOT;
@@ -130,7 +127,6 @@ maxerr: 50, node: true, white: true, evil: true */
 
     
     it('sync directory structure to root', function(done) {
-//      LOCALROOT = "/Users/tim/work/ftp-sync/src/node/test/testdata/test3";
       LOCALROOT = "./testdata/test3";
       REMOTEROOT = ".";
       LOCALPATH = LOCALPREFIX;

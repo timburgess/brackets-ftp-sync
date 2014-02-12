@@ -131,7 +131,6 @@ maxerr: 50, node: true, white: true */
   // checks the return from a cwd that we have a valid remote root and
   // then initiates directory walk
   function checkRemoteDir(err, data) {
-//    debugger;
     if (err) {
         _domainManager.emitEvent("ftpsync", "error", "Error: remote directory " + REMOTEROOT + " does not exist");
         console.log('cannot cwd remote root: ' + REMOTEROOT);
@@ -140,74 +139,57 @@ maxerr: 50, node: true, white: true */
         return;
     }
 
-    /* remote dir exists, so capture how many levels down
-    var subnum = REMOTEROOT.split('/').length;
-    var i, upPath = "..";
-    for (i = 0; i < subnum-1; i++) { upPath = upPath + "/.."; }
-
-    // pop up from prior CWD and then walk the tree
-    ftp.raw.cwd(upPath, function (err, res) {
+    // get the login dir and prefix to REMOTEPATH
+    ftp.raw.pwd(function (err, data) {
         if (err) {
-            // somehow we had a popup issue, so exit
-            _domainManager.emitEvent("ftpsync", "error", "Error: remote directory " + REMOTEROOT + " does not exist");
-            console.log('cannot cwd remote root: ' + REMOTEROOT);
+            // we've authed so we need to disconnect
+            _domainManager.emitEvent("ftpsync", "error", "Error: " + data.text);
             final(false);
             return;
-        }*/
+        }
 
-        // get the login dir and prefix to REMOTEPATH
-        ftp.raw.pwd(function (err, data) {
-//            debugger;
-            if (err) {
-                // we'e authed so we need to disconnect
-                _domainManager.emitEvent("ftpsync", "error", "Error: " + data.text);
-                final(false);
-                return;
-            }
-            
-            console.log(data.text);
+        console.log(data.text);
 
-            var raw = data.text.split(' ')[1];
-            // strip out quotes in path
-            var prefix = raw.replace(/\"/g, "");
-//            if (prefix[prefix.length-1] !== '/') prefix += '/';
-            console.log('cwd to ' + prefix);
-            REMOTEPATH = prefix;
+        var raw = data.text.split(' ')[1];
+        // strip out quotes in path
+        var prefix = raw.replace(/\"/g, "");
+//        if (prefix[prefix.length-1] !== '/') prefix += '/';
+        console.log('cwd to ' + prefix);
+        REMOTEPATH = prefix;
 
-            // setup walk function
-            var walkFileSystem = function (pathSuffix) {
-                var i;
-                var fullPath = LOCALROOT + pathSuffix;
+        // setup walk function
+        var walkFileSystem = function (pathSuffix) {
+            var i;
+            var fullPath = LOCALROOT + pathSuffix;
 
-                var files = fs.readdirSync(fullPath);
-                for (i in files) {
-                    // ignore hiddenfiles
-                    if (files[i].substring(0, 1) !== '.') {
+            var files = fs.readdirSync(fullPath);
+            for (i in files) {
+                // ignore hiddenfiles
+                if (files[i].substring(0, 1) !== '.') {
 
-                        var currentFile = fullPath + files[i];
-                        var remotePath = REMOTEPATH + pathSuffix + files[i];
-                        var stats = fs.statSync(currentFile);
+                    var currentFile = fullPath + files[i];
+                    var remotePath = REMOTEPATH + pathSuffix + files[i];
+                    var stats = fs.statSync(currentFile);
 
-                        if (stats.isFile()) {
-                            //console.log('pushing file:' + remotePath);
-                            ops.push([statOp, currentFile, remotePath]);
-                            // start ops now we have an op
-                            if (!processOps) {
-                                processOps = true;
-                                series(ops.shift());
-                            }
+                    if (stats.isFile()) {
+                        //console.log('pushing file:' + remotePath);
+                        ops.push([statOp, currentFile, remotePath]);
+                        // start ops now we have an op
+                        if (!processOps) {
+                            processOps = true;
+                            series(ops.shift());
+                        }
 
-                        } else if (stats.isDirectory()) {
-                            //console.log('pushing dir:' + remotePath);
-                            ops.push([dirOp, currentFile, remotePath]);
-                            walkFileSystem(pathSuffix + files[i] + '/');
-                        } // ignore other types
-                    }
+                    } else if (stats.isDirectory()) {
+                        //console.log('pushing dir:' + remotePath);
+                        ops.push([dirOp, currentFile, remotePath]);
+                        walkFileSystem(pathSuffix + files[i] + '/');
+                    } // ignore other types
                 }
-            };
-            walkFileSystem('/');
-        });
-//    });
+            }
+        };
+        walkFileSystem('/');
+    });
   }
         
   function connect(host, port, user, pwd, localroot, remoteroot, domainManager) {
