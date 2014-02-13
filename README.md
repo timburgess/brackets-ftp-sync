@@ -30,7 +30,7 @@ Got an issue? Check the [Troubleshooting](https://github.com/timburgess/brackets
 
 #### Test framework ####
 
-A test framework using _mocha_ is now present in `src/node/test`.
+A test framework using _mocha_ is now present in [src/node/test](https://github.com/timburgess/brackets-ftp-sync/tree/master/src/node/test) 
 
 ####History####
 2014-02-06: 1.0.3 Release
