@@ -196,7 +196,7 @@ maxerr: 50, node: true, white: true */
   function connect(host, port, user, pwd, localroot, remoteroot, domainManager) {
 
     LOCALROOT = localroot;
-    REMOTEROOT = remoteroot;
+    REMOTEROOT = typeof remoteroot === 'undefined' ? '.' : remoteroot || '.';
     _domainManager = domainManager;
     
     domain.enter();
