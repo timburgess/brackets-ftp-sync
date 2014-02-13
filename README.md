@@ -26,7 +26,7 @@ info@tim-burgess.com
 
 #### Troubleshooting ####
 
-Got an issue? Check the [Troubleshooting] page (https://github.com/timburgess/brackets-ftp-sync/wiki/Troubleshooting-FTP-Sync) 
+Got an issue? Check the [Troubleshooting](https://github.com/timburgess/brackets-ftp-sync/wiki/Troubleshooting-FTP-Sync) page 
 
 #### Test framework ####
 
