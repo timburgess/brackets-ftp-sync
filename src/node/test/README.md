@@ -11,13 +11,13 @@ To setup, in the test directory:
 
 1. Install mocha globally
 
-  npm install -g mocha
+  `sudo npm install -g mocha`
   
 2. Install rimraf
 
-  npm install
+  `npm install`
   
-3. Copy config.json.example to config.json and set your localhost FTP user and pwd
+3. Copy _config.json.example_ to _config.json_ and set your localhost FTP user and pwd
    Also, set localprefix to the local directory where your FTP server places you on login
   
 To test, simply run `mocha` on the command-line. Mocha should find test.js and run
