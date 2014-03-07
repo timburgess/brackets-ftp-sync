@@ -35,7 +35,7 @@ A test framework using _mocha_ is now present in [src/node/test](https://github.
 ####History####
 2014-03-07: 1.0.4 Release
 
-Password checkbox for saving password - contributed by Parcye
+Password checkbox for saving password - contributed by Parcye.
 Underlying ftp lib patches added
 
 2014-02-06: 1.0.3 Release
