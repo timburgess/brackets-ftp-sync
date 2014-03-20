@@ -23,16 +23,10 @@ maxerr: 50, node: true, white: true */
      * @private
      * Handler function for the ftp upload
      */
-    function cmdFtpUpload(host, port, user, pwd, localroot, remoteroot) {
+    function cmdFtpUpload(ftpSettings) {
         
-        ftpsync.connect(host,
-                        parseInt(port, 10),
-                        user,
-                        pwd,
-                        localroot,
-                        remoteroot,
-                        _domainManager
-                        );
+      ftpSettings.port = parseInt(ftpSettings.port, 10);
+        ftpsync.connect(ftpSettings, _domainManager);
     }
 
     /**

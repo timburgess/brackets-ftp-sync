@@ -1,5 +1,6 @@
 {
+  "host": "localhost",
   "user": "tim",
   "pwd": "xxx",
-  "localprefix": "/Users/tim"
+  "localprefix": "/Users/tim",
 }

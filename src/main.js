@@ -18,8 +18,8 @@ define(function (require, exports, module) {
         ProjectManager      = brackets.getModule("project/ProjectManager"),
         CommandManager      = brackets.getModule("command/CommandManager"),
         KeyBindingManager   = brackets.getModule("command/KeyBindingManager"),
+        NodeDomain          = brackets.getModule("utils/NodeDomain"),
         ExtensionUtils      = brackets.getModule("utils/ExtensionUtils"),
-        NodeConnection      = brackets.getModule("utils/NodeConnection"),
         Dialogs             = brackets.getModule("widgets/Dialogs"),
         FileSystem          = brackets.getModule("filesystem/FileSystem"),
         FileUtils           = brackets.getModule("file/FileUtils"),
@@ -29,7 +29,7 @@ define(function (require, exports, module) {
     var mainDialog       = require("text!htmlContent/ftp-dialog.html");
     var toolbar          = require("text!htmlContent/ftp-toolbar.html");
 
-    var nodeConnection;
+    var ftpDomain;
     
     var inProcess = false; // whether ftp is underway
     
@@ -66,18 +66,18 @@ define(function (require, exports, module) {
     // pull saved dialog settings from .ftpsync_settings in project root
     function readSettings() {
         
-        var destinationDir = ProjectManager.getProjectRoot().fullPath;
-        FileSystem.resolve(destinationDir + ".ftpsync_settings", function (err, fileEntry) {
-            if (!err) {
-                FileUtils.readAsText(fileEntry).done(function (text) {
-                    // settings file exists so parse
-                    console.log('parsed .ftpsync_settings');
-                    ftpSettings = $.parseJSON(text);
-                });
-            } else {
-                console.log("no existing ftp settings");
-            }
-        });
+      var destinationDir = ProjectManager.getProjectRoot().fullPath;
+      FileSystem.resolve(destinationDir + ".ftpsync_settings", function (err, fileEntry) {
+        if (!err) {
+          FileUtils.readAsText(fileEntry).done(function (text) {
+            // settings file exists so parse
+            console.log('[ftp-sync] parsed .ftpsync_settings');
+            ftpSettings = $.parseJSON(text);
+          });
+        } else {
+          console.log("[ftp-sync] no existing ftp settings");
+        }
+      });
     }
     
     // handle Upload button
@@ -179,115 +179,59 @@ define(function (require, exports, module) {
 
     }
     
+  
     // call node for ftp upload
     function callFtpUpload() {
-        
-        var ftpPromise = nodeConnection.domains.ftpsync.ftpUpload(ftpSettings.host, ftpSettings.port, ftpSettings.user, ftpSettings.pwd, ftpSettings.localRoot, ftpSettings.remoteRoot);
-        ftpPromise.fail(function (err) {
-            console.error("[ftp-sync] failed to complete ftp upload:", err);
-        });
-        ftpPromise.done(function (memory) {
-            console.log("[ftp-sync] started ftp upload");
-        });
-        return ftpPromise;
+      ftpDomain.exec('ftpUpload', ftpSettings)
+      .done(function () {
+        console.log('[ftp-sync] started ftp upload');
+      }).fail(function (err) {
+        console.error('ftp-sync] failed to complete ftp upload:', err);
+      });
     }
 
     // call node for ftp stop
     function callFtpStop() {
+      ftpDomain.exec('ftpStop', false)
+      .done(function () {
+        console.log('[ftp-sync] ftp upload stopped');
+      }).fail(function (err) {
+        console.error('ftp-sync] failed to complete ftp stop:', err);
+      });
+    }
         
-        var ftpPromise = nodeConnection.domains.ftpsync.ftpStop();
-        ftpPromise.fail(function (err) {
-            console.error("[ftp-sync] failed to complete ftp stop:", err);
-        });
-        ftpPromise.done(function (memory) {
-            console.log("[ftp-sync] ftp upload stopped");
-        });
-        return ftpPromise;
-    }
 
-    
-    
-    // Helper function that chains a series of promise-returning
-    // functions together via their done callbacks.
-    function chain() {
-        var functions = Array.prototype.slice.call(arguments, 0);
-        if (functions.length > 0) {
-            var firstFunction = functions.shift();
-            var firstPromise = firstFunction.call();
-            firstPromise.done(function () {
-                chain.apply(null, functions);
-            });
-        }
-    }
-
-    
-
-    
     AppInit.appReady(function () {
 
-        // Create a new node connection.
-        nodeConnection = new NodeConnection();
-        
-        // Every step of communicating with node is asynchronous, and is
-        // handled through jQuery promises. To make things simple, we
-        // construct a series of helper functions and then chain their
-        // done handlers together. Each helper function registers a fail
-        // handler with its promise to report any errors along the way.
-        
-        
-        // Helper function to connect to node
-        function connect() {
-            var connectionPromise = nodeConnection.connect(true);
-            connectionPromise.fail(function () {
-                console.error("[ftp-sync] failed to connect to node");
-            });
-            return connectionPromise;
-        }
-        
-        // Helper function that loads our domain into the node server
-        function loadFtpDomain() {
-            var path = ExtensionUtils.getModulePath(module, "node/ftpDomain");
-            var loadPromise = nodeConnection.loadDomains([path], true);
-            loadPromise.fail(function () {
-                console.log("[ftp-sync] failed to load domain");
-            });
-            loadPromise.done(function () {
-                 console.log("[ftp-sync] loaded");
-            });
-            return loadPromise;
-        }
-        
-            
-        
-        // Call all the helper functions in order
-        chain(connect, loadFtpDomain);
+      // connect to the node domain
+      ftpDomain = new NodeDomain("ftpsync", ExtensionUtils.getModulePath(module, "node/ftpDomain"));
 
-        // load stylesheet
-        ExtensionUtils.loadStyleSheet(module, "styles/styles.css");
-        
-        // add icon to toolbar & listener
-        $("#main-toolbar .buttons").append(toolbar);
-        $("#toolbar-ftpsync").on("click", function() {
-            showFtpDialog();
-        });
-        
-        // get any existing settings
-        readSettings();
+      // load stylesheet
+      ExtensionUtils.loadStyleSheet(module, "styles/styles.css");
 
-        // listen for events
-        $(nodeConnection).on("ftpsync.connected", handleEvent);
-        $(nodeConnection).on("ftpsync.disconnected", handleEvent);
-        $(nodeConnection).on("ftpsync.uploaded", handleEvent);
-        $(nodeConnection).on("ftpsync.mkdir", handleEvent);
-        $(nodeConnection).on("ftpsync.error", handleEvent);
+      // add icon to toolbar & listener
+      $("#main-toolbar .buttons").append(toolbar);
+      $("#toolbar-ftpsync").on("click", function() {
+          showFtpDialog();
+      });
+
+      // get any existing settings
+      readSettings();
+
+      // listen for events
+      $(ftpDomain.connection).on("ftpsync.connected", handleEvent);
+      $(ftpDomain.connection).on("ftpsync.disconnected", handleEvent);
+      $(ftpDomain.connection).on("ftpsync.uploaded", handleEvent);
+      $(ftpDomain.connection).on("ftpsync.mkdir", handleEvent);
+      $(ftpDomain.connection).on("ftpsync.error", handleEvent);
 
 
 //        console.log('binding Ctrl-W');
 //        CommandManager.register("ftpsyncdialog", COMMAND_ID, showFtpDialog);
 //        KeyBindingManager.addBinding(COMMAND_ID, "Ctrl-W", "mac");
 //        KeyBindingManager.addBinding(COMMAND_ID, "Ctrl-W", "win");
-        
 
-    });
+
+  });
         
 });

@@ -193,10 +193,10 @@ maxerr: 50, node: true, white: true */
     });
   }
         
-  function connect(host, port, user, pwd, localroot, remoteroot, domainManager) {
+  function connect(opts, domainManager) {
 
-    LOCALROOT = localroot;
-    REMOTEROOT = typeof remoteroot === 'undefined' ? '.' : remoteroot || '.';
+    LOCALROOT = opts.localRoot;
+    REMOTEROOT = typeof opts.remoteRoot === 'undefined' ? '.' : opts.remoteRoot || '.';
     _domainManager = domainManager;
     
     domain.enter();
@@ -204,30 +204,30 @@ maxerr: 50, node: true, white: true */
     // check that local dir exists, walk local fs
     fs.exists(LOCALROOT, function (exists) {
       if (!exists) { 
-          _domainManager.emitEvent("ftpsync", "error", LOCALROOT + ' does not exist');
-          console.log('local directory ' + LOCALROOT + ' does not exist');
-          return;
+        _domainManager.emitEvent("ftpsync", "error", LOCALROOT + ' does not exist');
+        console.log('local directory ' + LOCALROOT + ' does not exist');
+        return;
       }
       
       ftp = new JSFtp({
-          host: host
+        host: opts.host
       });
       
 
       // connect to remote
-      ftp.auth(user, pwd, function (err, data) {
-          if (err) { 
-              _domainManager.emitEvent("ftpsync", "error", err.toString());
-              console.log('Failed to connect to remote: ' + err);
-              return;
-          }
+      ftp.auth(opts.user, opts.pwd, function (err, data) {
+        if (err) { 
+          _domainManager.emitEvent("ftpsync", "error", err.toString());
+          console.log('Failed to connect to remote: ' + err);
+          return;
+        }
 
-          // emit connect
-          _domainManager.emitEvent("ftpsync", "connected", data.text);
-          console.log('Connected ' + data.text);
+        // emit connect
+        _domainManager.emitEvent("ftpsync", "connected", data.text);
+        console.log('Connected ' + data.text);
 
-          // check REMOTEROOT is a valid directory
-          ftp.raw.cwd(REMOTEROOT, checkRemoteDir);
+        // check REMOTEROOT is a valid directory
+        ftp.raw.cwd(REMOTEROOT, checkRemoteDir);
       });
     });
 
