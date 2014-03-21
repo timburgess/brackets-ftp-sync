@@ -63,7 +63,7 @@ define(function (require, exports, module) {
   }
 
   // pull saved dialog settings from .ftpsync_settings in project root
-  function readSettings() {
+  function readSettings(callback) {
 
     var destinationDir = ProjectManager.getProjectRoot().fullPath;
     FileSystem.resolve(destinationDir + ".ftpsync_settings", function (err, fileEntry) {
@@ -75,6 +75,7 @@ define(function (require, exports, module) {
         });
       else
         console.log("[ftp-sync] no existing ftp settings");
+      callback();
     });
   }
 
@@ -154,24 +155,27 @@ define(function (require, exports, module) {
 
   // show the ftp dialog and get references    
   function showFtpDialog() {
+    
+    readSettings(function() {
 
-    var templateVars = {
-        host: ftpSettings.host,
-        port: ftpSettings.port,
-        user: ftpSettings.user,
-        pwd: ftpSettings.pwd,
-        savepwd: ftpSettings.savepwd,
-        remoteroot: ftpSettings.remoteRoot,
-        Strings: Strings
-    };
+      var templateVars = {
+          host: ftpSettings.host,
+          port: ftpSettings.port,
+          user: ftpSettings.user,
+          pwd: ftpSettings.pwd,
+          savepwd: ftpSettings.savepwd,
+          remoteroot: ftpSettings.remoteRoot,
+          Strings: Strings
+      };
 
-    Dialogs.showModalDialogUsingTemplate(Mustache.render(mainDialog, templateVars), false);
+      Dialogs.showModalDialogUsingTemplate(Mustache.render(mainDialog, templateVars), false);
 
-    // focus to host input and add button handlers
-    var $dlg = $(".ftp-dialog.instance");
-    $dlg.find("#host").focus();
-    $dlg.find(".dialog-button[data-button-id='ok']").on("click", handleOk);
-    $dlg.find(".dialog-button[data-button-id='cancel']").on("click", handleCancel);
+      // focus to host input and add button handlers
+      var $dlg = $(".ftp-dialog.instance");
+      $dlg.find("#host").focus();
+      $dlg.find(".dialog-button[data-button-id='ok']").on("click", handleOk);
+      $dlg.find(".dialog-button[data-button-id='cancel']").on("click", handleCancel);
+    });
   }
 
 
@@ -209,9 +213,6 @@ define(function (require, exports, module) {
     $("#toolbar-ftpsync").on("click", function() {
         showFtpDialog();
     });
-
-    // get any existing settings
-    readSettings();
 
     // listen for events
     $(ftpDomain.connection).on("ftpsync.connected", handleEvent);
