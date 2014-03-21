@@ -193,9 +193,9 @@ maxerr: 50, node: true, white: true */
     });
   }
         
-  function connect(opts, domainManager) {
+  function connect(opts, localRoot, domainManager) {
 
-    LOCALROOT = opts.localRoot;
+    LOCALROOT = localRoot;
     REMOTEROOT = typeof opts.remoteRoot === 'undefined' ? '.' : opts.remoteRoot || '.';
     _domainManager = domainManager;
     

@@ -49,10 +49,11 @@ maxerr: 50, node: true, white: true, evil: true */
     host: config.host,
     port: 21,
     user: config.user,
-    pwd:  config.pwd,
+    pwd:  config.pwd
 //TODO    debug: console.log
   };
-  
+  var localRoot;
+
   // directory where ftp server puts you at login
   var LOCALPREFIX = config.localprefix;
   
@@ -73,7 +74,7 @@ maxerr: 50, node: true, white: true, evil: true */
 
       it('sync file changes', function(done) {
         
-        opts.localRoot = "./testdata/test1";
+        localRoot = "./testdata/test1";
         opts.remoteRoot = "ftptest/public_html";
         LOCALPATH = LOCALPREFIX + '/' + opts.remoteRoot;
 
@@ -81,7 +82,7 @@ maxerr: 50, node: true, white: true, evil: true */
         fs.mkdirSync(LOCALPREFIX + '/ftptest');
         fs.mkdirSync(LOCALPATH);
 
-        ftpsync.connect(opts, _domainManager);
+        ftpsync.connect(opts, localRoot, _domainManager);
 
         // wait for disconnect and then assert files exist
         _domainManager.once('disconnected', function() {
@@ -94,8 +95,8 @@ maxerr: 50, node: true, white: true, evil: true */
           stats = fs.statSync(LOCALPATH + '/re.py');
           assert.equal(stats.size, 444);
 
-          opts.localRoot = "./testdata/test1A";
-          ftpsync.connect(opts, _domainManager);
+          localRoot = "./testdata/test1A";
+          ftpsync.connect(opts, localRoot, _domainManager);
 
           _domainManager.once('disconnected', function() {
 
@@ -114,7 +115,7 @@ maxerr: 50, node: true, white: true, evil: true */
       });
 
       it('sync dir and file changes', function(done) {
-        opts.localRoot = "./testdata/test2";
+        localRoot = "./testdata/test2";
         opts.remoteRoot = "ftptest/public_html";
         LOCALPATH = LOCALPREFIX + '/' + opts.remoteRoot;
 
@@ -122,7 +123,7 @@ maxerr: 50, node: true, white: true, evil: true */
         fs.mkdirSync(LOCALPREFIX + '/ftptest');
         fs.mkdirSync(LOCALPATH);
 
-        ftpsync.connect(opts, _domainManager);
+        ftpsync.connect(opts, localRoot, _domainManager);
 
         // wait for disconnect and then assert files exist
         _domainManager.once('disconnected', function() {
@@ -142,11 +143,11 @@ maxerr: 50, node: true, white: true, evil: true */
       });
       
       it('sync directory structure to ftp root', function(done) {
-        opts.localRoot = "./testdata/test3";
+        localRoot = "./testdata/test3";
         opts.remoteRoot = ".";
         LOCALPATH = LOCALPREFIX;
 
-        ftpsync.connect(opts, _domainManager);
+        ftpsync.connect(opts, localRoot, _domainManager);
 
         // wait for disconnect and then assert files exist
         _domainManager.once('disconnected', function() {
@@ -173,11 +174,11 @@ maxerr: 50, node: true, white: true, evil: true */
       });
 
       it('sync directory structure to empty string remoteroot', function(done) {
-        opts.localRoot = "./testdata/test3";
+        localRoot = "./testdata/test3";
         opts.remoteRoot = "";
         LOCALPATH = LOCALPREFIX;
 
-        ftpsync.connect(opts, _domainManager);
+        ftpsync.connect(opts, localRoot, _domainManager);
 
         // wait for disconnect and then assert files exist
         _domainManager.once('disconnected', function() {
@@ -204,11 +205,11 @@ maxerr: 50, node: true, white: true, evil: true */
       });
 
       it('sync directory structure to null remoteroot', function(done) {
-        opts.localRoot = "./testdata/test3";
+        localRoot = "./testdata/test3";
         opts.remoteRoot = null;
         LOCALPATH = LOCALPREFIX;
 
-        ftpsync.connect(opts, _domainManager);
+        ftpsync.connect(opts, localRoot, _domainManager);
 
         // wait for disconnect and then assert files exist
         _domainManager.once('disconnected', function() {
@@ -235,11 +236,11 @@ maxerr: 50, node: true, white: true, evil: true */
       });
 
       it('sync directory structure to undefined remoteroot', function(done) {
-        opts.localRoot = "./testdata/test3";
+        localRoot = "./testdata/test3";
         opts.remoteRoot = undefined;
         LOCALPATH = LOCALPREFIX;
 
-        ftpsync.connect(opts, _domainManager);
+        ftpsync.connect(opts, localRoot, _domainManager);
 
         // wait for disconnect and then assert files exist
         _domainManager.once('disconnected', function() {

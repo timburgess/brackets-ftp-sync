@@ -33,16 +33,19 @@ define(function (require, exports, module) {
 
   var inProcess = false; // whether ftp is underway
 
-  var ftpSettings = {
+  var ftpSettings;
+  
+  // set FTP opts to default
+  function settingsToDefault() {
+    ftpSettings = {
       host : "localhost",
       port : "21",
       user : "",
       pwd : "",
       savepwd: "",
-      localRoot : "",
       remoteRoot : ""
-  };
-
+    };
+  }
 
   // save settings used in dialog so we can populate future dialogs
   // password is never saved
@@ -67,15 +70,19 @@ define(function (require, exports, module) {
 
     var destinationDir = ProjectManager.getProjectRoot().fullPath;
     FileSystem.resolve(destinationDir + ".ftpsync_settings", function (err, fileEntry) {
-      if (!err)
+      if (!err) {
         FileUtils.readAsText(fileEntry).done(function (text) {
           // settings file exists so parse
           console.log('[ftp-sync] parsed .ftpsync_settings');
           ftpSettings = $.parseJSON(text);
+          callback();
         });
-      else
+      } else {
         console.log("[ftp-sync] no existing ftp settings");
-      callback();
+        // if no settings file, overwrite ftpSettings in memory
+        settingsToDefault();
+        callback();
+      }
     });
   }
 
@@ -94,14 +101,14 @@ define(function (require, exports, module) {
     saveSettings();
 
     // determine the local root
-    ftpSettings.localRoot = ProjectManager.getProjectRoot().fullPath;
+    var localRoot = ProjectManager.getProjectRoot().fullPath;
 
     // emit a connecting event for dialog status
     handleEvent({ namespace: "connecting" }, "Connecting..." );
 
     // call ftp upload
     inProcess = true;
-    callFtpUpload();
+    callFtpUpload(localRoot);
 
     // dialog closes on receipt of disconnect event
   }
@@ -180,8 +187,8 @@ define(function (require, exports, module) {
 
 
   // call node for ftp upload
-  function callFtpUpload() {
-    ftpDomain.exec('ftpUpload', ftpSettings)
+  function callFtpUpload(localRoot) {
+    ftpDomain.exec('ftpUpload', ftpSettings, localRoot)
     .done(function () {
       console.log('[ftp-sync] started ftp upload');
     }).fail(function (err) {
@@ -220,6 +227,8 @@ define(function (require, exports, module) {
     $(ftpDomain.connection).on("ftpsync.uploaded", handleEvent);
     $(ftpDomain.connection).on("ftpsync.mkdir", handleEvent);
     $(ftpDomain.connection).on("ftpsync.error", handleEvent);
+    
+    settingsToDefault();
 
 
 //        console.log('binding Ctrl-W');

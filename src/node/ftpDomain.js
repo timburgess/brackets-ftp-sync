@@ -23,10 +23,10 @@ maxerr: 50, node: true, white: true */
      * @private
      * Handler function for the ftp upload
      */
-    function cmdFtpUpload(ftpSettings) {
+    function cmdFtpUpload(ftpSettings, localRoot) {
         
       ftpSettings.port = parseInt(ftpSettings.port, 10);
-        ftpsync.connect(ftpSettings, _domainManager);
+      ftpsync.connect(ftpSettings, localRoot, _domainManager);
     }
 
     /**
@@ -55,27 +55,14 @@ maxerr: 50, node: true, white: true */
             false,          // this command is synchronous
             "Uploads working dir to ftp server",
             // input parms
-            [{  name: "host",
+            [{  name: "ftpSettings",
+                type: "object",
+                description: "user settings"}],
+            [{  name: "localRoot",
                 type: "string",
-                description: "host"}],
-            [{  name: "port",
-                type: "string",
-                description: "username"}],
-            [{  name: "user",
-                type: "string",
-                description: "username"}],
-            [{  name: "pwd",
-                type: "string",
-                description: "password"}],
-            [{  name: "localroot",
-                type: "string",
-                description: "localroot"}],
-            [{  name: "remoteroot",
-                type: "string",
-                description: "remoteroot"}],
+                description: "project root path"}],
             [] // returns
         );
-
 
         DomainManager.registerCommand(
             "ftpsync",       // domain name
