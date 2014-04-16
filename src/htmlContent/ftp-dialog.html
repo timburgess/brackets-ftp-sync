@@ -1,31 +1,30 @@
 <div class="ftp-dialog modal">
-  <div class="modal-header" style="background-color:rgb(60,63,65);">
-    <h4 class="dialog-title" style="color:white;">Sync to FTP Server</h4>
+  <div class="modal-header">
+    <h4 class="dialog-title">Sync to FTP Server</h4>
   </div>
   <div class="modal-body">
-    <form class="form-horizontal">
+    <div class="form-horizontal">
       
       <div class="control-group">
         <label class="control-label" for="host">Server</label>
         <div class="controls">
-          <input class="span3" type="text" id="host" value="{{host}}">
-          <div class="input-prepend" style="padding-left:10px;">
+          <input class="span3" type="text" id="host" value="{{host}}" />
+          <div class="input-prepend">
             <span class="add-on">Port</span>
-            <input class="span1" style="width:22px;" type="text" id="port" value="{{port}}">
+            <input class="span1" type="text" id="port" value="{{port}}" />
           </div>
         </div>
       </div>
-
       <div class="control-group">
         <label class="control-label">Username</label>
         <div class="controls">
-          <input type="text" id="user" value="{{user}}">
+          <input type="text" id="user" value="{{user}}" />
         </div>
       </div>
       <div class="control-group">
         <label class="control-label">Password</label>
         <div class="controls">
-          <input type="password" id="pwd" value="{{pwd}}">
+          <input type="password" id="pwd" value="{{pwd}}" />
         </div>
       </div>
       <div class="control-group">
@@ -37,16 +36,15 @@
       <div class="control-group">
         <label class="control-label">Remote root</label>
         <div class="controls">
-          <input type="text" id="remoteroot" value="{{remoteroot}}">
+          <input type="text" id="remoteroot" value="{{remoteroot}}" />
         </div>
       </div>
-    </form>
+    </div>
   </div>
   <div class="modal-footer">
-      <span class="spinner pull-left" style="margin: 8px 10px 4px 0;"></span>
-      <p id="status" class="pull-left" style="position:relative; top:5px;"></p>
-      <button class="dialog-button btn" data-button-id="cancel">Cancel</button>
-        <button class="dialog-button btn primary" data-button-id="ok">Upload</button>
-
+    <span class="spinner pull-left"></span>
+    <p id="status" class="pull-left"></p>
+    <button class="dialog-button btn" data-button-id="cancel">Cancel</button>
+    <button class="dialog-button btn primary" data-button-id="ok">Upload</button>
   </div>
 </div>
