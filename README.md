@@ -9,7 +9,7 @@ At present, FTP-Sync requires Brackets version 34 or later (due to the new FileS
 
 If you want to install the extension manually, the root level of this project contains a zip file. This zip file can be dropped and then expanded into either the Brackets extensions folder or `/brackets/src/extensions/dev` if working with the Brackets source.
 
-|**Need SFTP? [FTP-Sync Plus](http://tim-burgess.com) provides both SFTP and FTP**|
+|**Need SFTP? [FTP-Sync Plus](https://www.tim-burgess.com) provides both SFTP and FTP**|
 |---|
 
 ####Using####
