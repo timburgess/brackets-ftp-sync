@@ -37,9 +37,9 @@ maxerr: 50, node: true, white: true */
         _domainManager.emitEvent("ftpsync", "error", "Host not found");
     } else if (err.code === 'ETIMEDOUT') {
         _domainManager.emitEvent("ftpsync", "error", "Connect to host timed out");
-    } else if (err.code == 'ECONNRESET') {
+    } else if (err.code === 'ECONNRESET') {
         _domainManager.emitEvent("ftpsync", "error", "Connect to host reset");
-    } else if (err.code == 'ECONNREFUSED') {
+    } else if (err.code === 'ECONNREFUSED') {
         _domainManager.emitEvent("ftpsync", "error", "Connection to host refused");
     } else {
         
@@ -57,8 +57,8 @@ maxerr: 50, node: true, white: true */
   function final(emitOK) {
     if (emitOK === undefined) { emitOK = true; }
     ftp.disconnect();
-    if (emitOK) { _domainManager.emitEvent("ftpsync", "disconnected", data.text); }
-    console.log('quit:' + data.text);
+    if (emitOK) { _domainManager.emitEvent("ftpsync", "disconnected"); }
+    console.log('disconnected');
     // reset flags
     processOps = false;
     haltCalled = false;
@@ -135,7 +135,7 @@ maxerr: 50, node: true, white: true */
             if (files[i].substring(0, 1) !== '.') {
 
                 var currentFile = fullPath + files[i];
-                var remotePath = REMOTEPATH + pathSuffix + files[i];
+                var remotePath = REMOTEROOT + pathSuffix + files[i];
                 var stats = fs.statSync(currentFile);
 
                 if (stats.isFile()) {

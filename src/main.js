@@ -132,7 +132,7 @@ define(function (require, exports, module) {
     if (event.namespace === "error") {
       // remove spinner if active
       $dlg.find(".spinner").removeClass("spin");
-      $dlg.find("#status").html(msg);
+      $dlg.find("#status").html(msg.slice(0,61));
       inProcess = false;
       return;
     }
@@ -144,6 +144,7 @@ define(function (require, exports, module) {
       //stop spinner
       $dlg.find(".spinner").removeClass("spin");
       inProcess = false;
+      msg = 'Disconnected';
     }            
     var $status = $dlg.find("#status");
     msg.split('\n').forEach(function (line) {
