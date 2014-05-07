@@ -98,6 +98,13 @@ maxerr: 50, node: true, white: true */
         );
         DomainManager.registerEvent(
             "ftpsync",
+            "chkdir",
+            [{  name: "result",
+                type: "string",
+                description: "result"}]
+        );
+        DomainManager.registerEvent(
+            "ftpsync",
             "mkdir",
             [{  name: "result",
                 type: "string",

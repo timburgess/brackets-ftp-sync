@@ -226,6 +226,7 @@ define(function (require, exports, module) {
     $(ftpDomain.connection).on("ftpsync.connected", handleEvent);
     $(ftpDomain.connection).on("ftpsync.disconnected", handleEvent);
     $(ftpDomain.connection).on("ftpsync.uploaded", handleEvent);
+    $(ftpDomain.connection).on("ftpsync.chkdir", handleEvent);
     $(ftpDomain.connection).on("ftpsync.mkdir", handleEvent);
     $(ftpDomain.connection).on("ftpsync.error", handleEvent);
     

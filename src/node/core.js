@@ -81,6 +81,7 @@ maxerr: 50, node: true, white: true */
 
   // make a remote dir
   function dirOp(localPath, remotePath) {
+    _domainManager.emitEvent('ftpsync', 'chkdir', 'checking ' + remotePath);
     ftp.mkdir(remotePath, function(err, exists) {
       if (err) throw err;
       if (!exists) {
