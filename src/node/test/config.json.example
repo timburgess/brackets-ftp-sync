@@ -1,6 +1,9 @@
 {
-  "host": "localhost",
+  "connect": "sftp",
+  "host": "myhost",
   "user": "tim",
-  "pwd": "xxx",
-  "localprefix": "/Users/tim",
+  "pwd": "mypassword",
+  "localprefix": "/home/tim",
+  "privateKeyFile": "/home/tim/.ssh/id_rsa",
+  "passphrase": "mypassphrase",
 }

@@ -28,7 +28,6 @@ maxerr: 50, node: true, white: true, evil: true */
       console.log("[%s] %s", eventName, parameters);
     else
       console.log("[%s]", eventName);
-    // don't emit errors as they will simply be rethrown
     if (eventName !== 'error') {
       this.emit(eventName);
     }
@@ -49,10 +48,13 @@ maxerr: 50, node: true, white: true, evil: true */
     host: config.host,
     port: 21,
     user: config.user,
-    pwd:  config.pwd
-//TODO    debug: console.log
+    pwd:  config.pwd,
+    privateKey: config.privateKey,
+    passphrase: config.passphrase
+//    debug: console.log
   };
-  var localRoot;
+
+  var localRoot = "";
 
   // directory where ftp server puts you at login
   var LOCALPREFIX = config.localprefix;
@@ -113,7 +115,7 @@ maxerr: 50, node: true, white: true, evil: true */
           });
         });
       });
-
+      
       it('sync dir and file changes', function(done) {
         localRoot = "./testdata/test2";
         opts.remoteRoot = "ftptest/public_html";

@@ -5,7 +5,7 @@
  * @license Tim Burgess 2014
  */
 
-/*jslint vars: true, plusplus: true, devel: true, nomen: true, indent: 4,
+/*jslint debug: true, vars: true, plusplus: true, devel: true, nomen: true, indent: 4,
 maxerr: 50, node: true, white: true */
 /* global */
 
@@ -17,7 +17,8 @@ maxerr: 50, node: true, white: true */
   
   var fs = require("fs"),
   domain = require("domain").create(),
-     FTP = require("./FTP.js");
+     FTP = require("./FTP.js"),
+    SFTP = require('./SFTP.js');
 
   var _domainManager;
 
@@ -31,19 +32,23 @@ maxerr: 50, node: true, white: true */
   // constructor
   var self = exports;
 
-  // domain to catch any exceptions e.g. timeout
+  // domain to catch any errors thrown
   domain.on('error', function (err) {
     if (err.code === 'ENOTFOUND') {
         _domainManager.emitEvent("ftpsync", "error", "Host not found");
     } else if (err.code === 'ETIMEDOUT') {
         _domainManager.emitEvent("ftpsync", "error", "Connect to host timed out");
     } else if (err.code === 'ECONNRESET') {
-        _domainManager.emitEvent("ftpsync", "error", "Connect to host reset");
+        _domainManager.emitEvent("ftpsync", "error", "Connection to host reset");
     } else if (err.code === 'ECONNREFUSED') {
         _domainManager.emitEvent("ftpsync", "error", "Connection to host refused");
     } else {
-        
-      console.log('Conn error: ' + err.message);
+      // TODO - deal with nonexistent REMOTEROOT
+      // if bad passphrase, simplify message
+      if (err.message.indexOf('Unable to parse private key') === 0) {
+        err.message = 'Invalid keyfile passphrase';
+      }
+      console.log('Error: ' + err.message);
       _domainManager.emitEvent('ftpsync', 'error', 'Error: ' + err.message);
     }
   });
@@ -55,9 +60,10 @@ maxerr: 50, node: true, white: true */
 
   
   function final(emitOK) {
-    if (emitOK === undefined) { emitOK = true; }
+//    console.log('final called');
+    if (emitOK === undefined) emitOK = true;
     ftp.disconnect();
-    if (emitOK) { _domainManager.emitEvent("ftpsync", "disconnected"); }
+    if (emitOK) _domainManager.emitEvent("ftpsync", "disconnected");
     console.log('disconnected');
     // reset flags
     processOps = false;
@@ -67,16 +73,15 @@ maxerr: 50, node: true, white: true */
   // control-flow
   function series(op) {
 
-      if (op) {
-          if (haltCalled) {
-              ops = [];
-              return final();
-          }
-          var func = op[0];
-          func(op[1], op[2]);
-      } else {
+    if (op) {
+      if (haltCalled) {
+          ops = [];
           return final();
       }
+      var func = op[0];
+      func(op[1], op[2]);
+    } else
+      return final();
   }
 
   // make a remote dir
@@ -114,51 +119,51 @@ maxerr: 50, node: true, white: true */
   }
 
 
-  // checks the remote directory exists, and if so, walk it
+  // checks whether the remote directory exists, and if so, walk it
   function checkRemoteDir(exists) {
-    
-    if (!exists) {
-        _domainManager.emitEvent("ftpsync", "error", "Error: remote directory " + REMOTEROOT + " does not exist");
-        console.log('cannot cwd remote root: ' + REMOTEROOT);
-        // we've authed so we need to disconnect
-        final(false);
-        return;
-    }
 
+    if (!exists) {
+      _domainManager.emitEvent("ftpsync", "error", "Error: remote directory " + REMOTEROOT + " does not exist");
+      console.log('cannot cwd remote root: ' + REMOTEROOT);
+      // we've authed so we need to disconnect
+      final(false);
+      return;
+    }
+    
     // setup walk function
     var walkFileSystem = function (pathSuffix) {
-        var i;
-        var fullPath = LOCALROOT + pathSuffix;
+      var i;
+      var fullPath = LOCALROOT + pathSuffix;
 
-        var files = fs.readdirSync(fullPath);
-        for (i in files) {
-            // ignore hiddenfiles
-            if (files[i].substring(0, 1) !== '.') {
+      var files = fs.readdirSync(fullPath);
+      for (i in files) {
+        // ignore hiddenfiles
+        if (files[i].substring(0, 1) !== '.') {
 
-                var currentFile = fullPath + files[i];
-                var remotePath = REMOTEROOT + pathSuffix + files[i];
-                var stats = fs.statSync(currentFile);
+          var currentFile = fullPath + files[i];
+          var remotePath = REMOTEROOT + pathSuffix + files[i];
+          var stats = fs.statSync(currentFile);
 
-                if (stats.isFile()) {
-                    ops.push([statOp, currentFile, remotePath]);
-                    // start ops now we have an op
-                    if (!processOps) {
-                        processOps = true;
-                        series(ops.shift());
-                    }
+          if (stats.isFile()) {
+              ops.push([statOp, currentFile, remotePath]);
+              // start ops now we have an op
+              if (!processOps) {
+                  processOps = true;
+                  series(ops.shift());
+              }
 
-                } else if (stats.isDirectory()) {
-                    ops.push([dirOp, currentFile, remotePath]);
-                    walkFileSystem(pathSuffix + files[i] + '/');
-                } // ignore other types
-            }
+          } else if (stats.isDirectory()) {
+              ops.push([dirOp, currentFile, remotePath]);
+              walkFileSystem(pathSuffix + files[i] + '/');
+          } // ignore other types
         }
+      }
     };
     
     walkFileSystem('/');
   }
-
-
+  
+  
   function connect(opts, localRoot, domainManager) {
 
     LOCALROOT = localRoot;
@@ -167,7 +172,7 @@ maxerr: 50, node: true, white: true */
     
     domain.enter();
 
-    // check that local dir exists, walk local fs
+    // check that local dir exists
     fs.exists(LOCALROOT, function (exists) {
       if (!exists) { 
         _domainManager.emitEvent("ftpsync", "error", LOCALROOT + ' does not exist');
@@ -175,9 +180,11 @@ maxerr: 50, node: true, white: true */
         return;
       }
       
-      ftp = new FTP(_domainManager);
-
-      // connect to remote
+      if (typeof opts.connect === undefined || opts.connect === 'FTP')
+        ftp = new FTP(_domainManager);
+      else
+        ftp = new SFTP(_domainManager);
+      
       ftp.connect(opts, function(connected) {
         // if an error occurs, callback may not run
         if (!connected) return;

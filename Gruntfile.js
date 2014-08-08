@@ -22,24 +22,6 @@ module.exports = function(grunt) {
       }
     },
 
-    /*uglify: {
-      options: {
-          mangle: {
-              except: ['$', 'require']
-          },
-          screw_ie8: true,
-          preserveComments: 'some'
-      },
-      client: {
-          src: 'src/main.js',
-          dest: 'build/ftp-sync/main.js'
-      },
-      node: {
-          src: 'src/node/ftpDomain.js',
-          dest: 'build/ftp-sync/node/ftpDomain.js'
-      }
-    },*/
-      
     compress: {
         build: {
             options: {
@@ -55,7 +37,6 @@ module.exports = function(grunt) {
 
   // load copy plugin
   grunt.loadNpmTasks('grunt-contrib-copy');
-  //grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-contrib-compress');
   grunt.loadNpmTasks('grunt-contrib-clean');
 

@@ -1,10 +1,18 @@
 <div class="ftp-dialog modal">
   <div class="modal-header">
-    <h4 class="dialog-title">Sync to FTP Server</h4>
+    <h4 class="dialog-title">FTP-Sync</h4>
   </div>
   <div class="modal-body">
     <div class="form-horizontal">
       
+      <div class="control-group">
+        <div class="controls">
+          <div class="btn-group" data-toggle="buttons-radio">
+            <button type="button" class="btn active">FTP</button>
+            <button type="button" id="sftp-btn" class="btn">SFTP</button>
+          </div>
+        </div>
+      </div>
       <div class="control-group">
         <label class="control-label" for="host">Server</label>
         <div class="controls">
@@ -19,6 +27,13 @@
         <label class="control-label">Username</label>
         <div class="controls">
           <input type="text" id="user" value="{{user}}" />
+        </div>
+      </div>
+      <div class="control-group">
+        <label class="control-label">Private Key File</label>
+        <div class="controls">
+          <input type="text" id="keyfile" disabled="disabled" value="{{privateKeyFile}}" />
+          <button class="dialog-button btn" data-button-id="browse" disabled="disabled">Browse</button>
         </div>
       </div>
       <div class="control-group">
@@ -42,9 +57,9 @@
     </div>
   </div>
   <div class="modal-footer">
-    <span class="spinner pull-left"></span>
-    <p id="status" class="pull-left"></p>
-    <button class="dialog-button btn" data-button-id="cancel">Cancel</button>
-    <button class="dialog-button btn primary" data-button-id="ok">Upload</button>
+      <span class="spinner pull-left" style="margin: 8px 10px 4px 0;"></span>
+      <p id="status" class="pull-left"></p>
+      <button class="dialog-button btn" data-button-id="cancel">Cancel</button>
+      <button class="dialog-button btn primary" data-button-id="ok">Upload</button>
   </div>
 </div>

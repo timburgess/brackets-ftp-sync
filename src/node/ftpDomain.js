@@ -24,7 +24,7 @@ maxerr: 50, node: true, white: true */
      * Handler function for the ftp upload
      */
     function cmdFtpUpload(ftpSettings, localRoot) {
-        
+
       ftpSettings.port = parseInt(ftpSettings.port, 10);
       ftpsync.connect(ftpSettings, localRoot, _domainManager);
     }
@@ -35,6 +35,12 @@ maxerr: 50, node: true, white: true */
      */
     function cmdFtpStop() {
         ftpsync.halt();
+    }
+  
+    function getDefaultKeyPath() {
+      if (process.platform == 'win32')
+        return process.env['USERPROFILE'] + '\\.ssh'
+      return process.env['HOME'] + '/.ssh'
     }
 
     
@@ -52,27 +58,21 @@ maxerr: 50, node: true, white: true */
             "ftpsync",       // domain name
             "ftpUpload",    // command name
             cmdFtpUpload,   // function name
-            false,          // this command is synchronous
-            "Uploads working dir to ftp server",
-            // input parms
-            [{  name: "ftpSettings",
-                type: "object",
-                description: "user settings"}],
-            [{  name: "localRoot",
-                type: "string",
-                description: "project root path"}],
-            [] // returns
+            false          // this command is synchronous
         );
 
         DomainManager.registerCommand(
             "ftpsync",       // domain name
             "ftpStop",    // command name
             cmdFtpStop,   // function name
-            false,          // this command is synchronous
-            "Flags any ops underway to halt",
-            // input parms
-            [],
-            [] // returns
+            false          // this command is synchronous
+        );
+
+        DomainManager.registerCommand(
+            "ftpsync",       // domain name
+            "getDefaultKeyPath",    // command name
+            getDefaultKeyPath,   // function name
+            false          // this command is synchronous
         );
         
         DomainManager.registerEvent(

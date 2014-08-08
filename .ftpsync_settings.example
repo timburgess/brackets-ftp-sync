@@ -1,0 +1,1 @@
+{"connect":"SFTP","host":"myhost","port":"22","user":"tim","pwd":"mypassword","savepwd":"checked","remoteRoot":"ftptest","privateKeyFile":"/home/tim/.ssh/id_rsa"}
