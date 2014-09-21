@@ -96,13 +96,15 @@ define(function (require, exports, module) {
     $(this).addClass('active');
     ftpSettings.connect = $(this).text();
     
+    var currentPort = $("#port").val();
+    
     var keyfileDisabled;
     if (ftpSettings.connect === 'FTP') {
       keyfileDisabled = true;
-      $("#port").val('21');
+      if(!currentPort || currentPort == 22) $("#port").val('21');
     } else {
       keyfileDisabled = false;
-      $("#port").val('22');
+      if(!currentPort || currentPort == 21) $("#port").val('22');
     }
     $("#keyfile").prop('disabled', keyfileDisabled);
     $(".dialog-button[data-button-id='browse']").prop('disabled', keyfileDisabled);
