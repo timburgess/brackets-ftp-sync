@@ -6,6 +6,6 @@
     "version": "1.0.5",
     "author": "Tim Burgess (https://github.com/timburgess)",
     "engines": {
-        "brackets": ">=0.34.0"
+        "brackets": ">=1.1.0"
     }
 }
