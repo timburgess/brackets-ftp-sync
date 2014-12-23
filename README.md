@@ -28,6 +28,10 @@ Got an issue? Check the [Troubleshooting](https://github.com/timburgess/brackets
 A test framework using _mocha_ is now present in [src/node/test](https://github.com/timburgess/brackets-ftp-sync/tree/master/src/node/test) 
 
 ####History####
+2014-12-23: 2.0.1 Release
+
+Changes to work with Brackets 1.1 API - contributed by ckip
+
 2014-08-08: 2.0.0 Release
 
 SFTP functionality now available. Supports password and key-based authentication.
