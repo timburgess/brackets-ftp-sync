@@ -130,7 +130,7 @@ define(function (require, exports, module) {
     var localRoot = ProjectManager.getProjectRoot().fullPath;
 
     // emit a connecting event for dialog status
-    handleEvent({ namespace: "connecting" }, "Connecting..." );
+    handleEvent({ type: "ftpsync:connecting" }, "Connecting..." );
 
     // call ftp upload
     inProcess = true;
@@ -173,7 +173,7 @@ define(function (require, exports, module) {
 
     var $dlg = $(".ftp-dialog.instance");
 
-    if (event.namespace === "error") {
+	if (event.type == "ftpsync:error") {
       // remove spinner if active
       $dlg.find(".spinner").removeClass("spin");
       if (msg.slice(0,22) === 'Authentication failure')
@@ -183,10 +183,10 @@ define(function (require, exports, module) {
       return;
     }
 
-    if (event.namespace === "connecting") {
+    if (event.type == "ftpsync:connected") {
       //start spinner
       $dlg.find(".spinner").addClass("spin");
-    } else if (event.namespace === "disconnected") {
+    } else if (event.type == "ftpsync:disconnected") {
       //stop spinner
       $dlg.find(".spinner").removeClass("spin");
       inProcess = false;
@@ -203,7 +203,7 @@ define(function (require, exports, module) {
     }
 
     // close dialog on disconnect
-    if (event.namespace === "disconnected") {
+	if (event.type == "ftpsync:disconnected") {
       Dialogs.cancelModalDialogIfOpen("ftp-dialog");
     }
   }
@@ -293,12 +293,12 @@ define(function (require, exports, module) {
 
 
     // listen for events
-    $(ftpDomain.connection).on("ftpsync.connected", handleEvent);
-    $(ftpDomain.connection).on("ftpsync.disconnected", handleEvent);
-    $(ftpDomain.connection).on("ftpsync.uploaded", handleEvent);
-    $(ftpDomain.connection).on("ftpsync.chkdir", handleEvent);
-    $(ftpDomain.connection).on("ftpsync.mkdir", handleEvent);
-    $(ftpDomain.connection).on("ftpsync.error", handleEvent);
+    $(ftpDomain.connection).on("ftpsync:connected", handleEvent);
+    $(ftpDomain.connection).on("ftpsync:disconnected", handleEvent);
+    $(ftpDomain.connection).on("ftpsync:uploaded", handleEvent);
+    $(ftpDomain.connection).on("ftpsync:chkdir", handleEvent);
+    $(ftpDomain.connection).on("ftpsync:mkdir", handleEvent);
+    $(ftpDomain.connection).on("ftpsync:error", handleEvent);
 
     settingsToDefault();
     getDefaultKeyPath();
