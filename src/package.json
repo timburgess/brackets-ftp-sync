@@ -3,7 +3,7 @@
     "title": "FTP-Sync Plus",
     "description": "FTP/SFTP upload for Brackets",
     "homepage": "https://github.com/timburgess",
-    "version": "2.0.1",
+    "version": "2.0.2",
     "author": "Tim Burgess (https://github.com/timburgess)",
     "engines": {
         "brackets": ">=1.1.0"
