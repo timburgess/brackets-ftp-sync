@@ -1,8 +1,8 @@
 #toolbar-ftpsync {
   display:inline-block;
   background-image:url('img/upload.svg');
-  background-size:100%;
-  opacity:0.80;
+  background-size: calc(100% - 6px) auto;
+  background-position: center center;
 }
 
 .ftp-dialog .modal-header {
