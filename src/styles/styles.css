@@ -17,20 +17,20 @@
   padding-left: 10px;
 }
 
-#port {
+.ftp-dialog #port {
   width: 32px; 
 }
 
-.dialog-button[data-button-id='browse'] {
+.ftp-dialog .dialog-button[data-button-id='browse'] {
   margin-left: 11px;
 }
 
-#status {
+.ftp-dialog #status {
   position: relative;
   top: 5px;
 }
 
-.btn-group > .btn {
+.ftp-dialog .btn-group > .btn {
   font-size: 16px;
   width: 80px;
 }
