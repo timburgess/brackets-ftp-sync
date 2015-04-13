@@ -31,6 +31,8 @@ A test framework using _mocha_ is now present in [src/node/test](https://github.
 2015-3-30: 2.0.3 Release
 
 Fixed icon being larger than standard - contributed by revxx14
+Fixed css conflicting with other extensions - contributed by Adam Jowett
+
 2015-1-10: 2.0.2 Release
 
 Fix 2.0.1 build issue not incorporating ssh2
