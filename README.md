@@ -28,6 +28,12 @@ Got an issue? Check the [Troubleshooting](https://github.com/timburgess/brackets
 A test framework using _mocha_ is now present in [src/node/test](https://github.com/timburgess/brackets-ftp-sync/tree/master/src/node/test) 
 
 ####History####
+2015-5-29: 2.0.4 Release
+
+Upgraded jsftp dependency to 1.5.2
+Upgraded ssh2 dependency to 0.3.6
+Resolves missing 'event-stream' issue
+
 2015-3-30: 2.0.3 Release
 
 Fixed icon being larger than standard - contributed by revxx14.
