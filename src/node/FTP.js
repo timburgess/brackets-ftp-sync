@@ -49,8 +49,9 @@ FTP.prototype.stat = function(remotePath, cb) {
 };
 
 FTP.prototype.exists = function(localPath, remotePath, cb) {
+  var escapedRemotePath = remotePath.replace(/\s/g, "\\ ");
   // stat whether same size file exists or not
-  this.ftp.ls(remotePath, function(err, data) {
+  this.ftp.ls(escapedRemotePath, function(err, data) {
     if (err) return cb(err);
     // irrespective of FTP 200 code, data gives us file info
     if (data.length === 0) return cb(false)
