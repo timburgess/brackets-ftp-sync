@@ -56,6 +56,7 @@ define(function (require, exports, module) {
     var projectRoot = ProjectManager.getProjectRoot().fullPath;
     var file = FileSystem.getFileForPath(projectRoot + '.ftpsync_settings');
 
+    //  Replace date object with equivalent time since 
     function replacePwd(key, value) {
       if (key === "pwd") return undefined;
       return value;
@@ -77,6 +78,10 @@ define(function (require, exports, module) {
           // settings file exists so parse
           console.log('[ftp-sync] parsed .ftpsync_settings');
           ftpSettings = $.parseJSON(text);
+          if (ftpSettings.lastSyncDate === undefined) {
+            ftpSettings.lastSyncDate = 0;
+          }
+          
           if (ftpSettings.connect === undefined) ftpSettings.connect = 'FTP';
           callback();
         });
@@ -89,6 +94,7 @@ define(function (require, exports, module) {
     });
   }
 
+  
   // handle FTP-SFTP select
   function handleSelect() {
     
@@ -168,6 +174,16 @@ define(function (require, exports, module) {
                   });
   }
 
+  function handleDisconnect (event, completed) {
+    // close dialog on disconnect
+    console.log ("Disconnect called with completed status " + completed);
+    
+    ftpSettings.lastSyncDate = new Date().getTime();
+    saveSettings();
+    Dialogs.cancelModalDialogIfOpen("ftp-dialog");
+    
+  }
+  
   // general event handler of node-side events
   function handleEvent(event, msg) {
 
@@ -191,7 +207,7 @@ define(function (require, exports, module) {
       $dlg.find(".spinner").removeClass("spin");
       inProcess = false;
     }
-
+    
     if (msg) { // ignore when msg undefined
       var $status = $dlg.find("#status");
       msg.split('\n').forEach(function (line) {
@@ -200,11 +216,6 @@ define(function (require, exports, module) {
         }
         $status.html(line);
       });
-    }
-
-    // close dialog on disconnect
-	if (event.type == "ftpsync:disconnected") {
-      Dialogs.cancelModalDialogIfOpen("ftp-dialog");
     }
   }
 
@@ -244,6 +255,9 @@ define(function (require, exports, module) {
       if (ftpSettings.connect === 'SFTP') $dlg.find('#sftp-btn').trigger('click');
   
     });
+    
+    // read document date cache on dialog box creation as the
+    // user may flip between projects
   }
 
   function getDefaultKeyPath() {
@@ -294,7 +308,7 @@ define(function (require, exports, module) {
 
     // listen for events
     $(ftpDomain.connection).on("ftpsync:connected", handleEvent);
-    $(ftpDomain.connection).on("ftpsync:disconnected", handleEvent);
+    $(ftpDomain.connection).on("ftpsync:disconnected", handleDisconnect);
     $(ftpDomain.connection).on("ftpsync:uploaded", handleEvent);
     $(ftpDomain.connection).on("ftpsync:chkdir", handleEvent);
     $(ftpDomain.connection).on("ftpsync:mkdir", handleEvent);
