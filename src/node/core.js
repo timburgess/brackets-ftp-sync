@@ -63,7 +63,7 @@ maxerr: 50, node: true, white: true */
 //    console.log('final called');
     if (emitOK === undefined) emitOK = true;
     ftp.disconnect();
-    if (emitOK) _domainManager.emitEvent("ftpsync", "disconnected");
+    _domainManager.emitEvent("ftpsync", "disconnected", emitOK)
     console.log('disconnected');
     // reset flags
     processOps = false;
@@ -76,7 +76,7 @@ maxerr: 50, node: true, white: true */
     if (op) {
       if (haltCalled) {
           ops = [];
-          return final();
+          return final(false);
       }
       var func = op[0];
       func(op[1], op[2]);
