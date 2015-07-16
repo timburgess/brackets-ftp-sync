@@ -177,9 +177,12 @@ define(function (require, exports, module) {
   function handleDisconnect (event, completed) {
     // close dialog on disconnect
     console.log ("Disconnect called with completed status " + completed);
+
+    if (completed) {
+      ftpSettings.lastSyncDate = new Date().getTime();
+      saveSettings();
+    }
     
-    ftpSettings.lastSyncDate = new Date().getTime();
-    saveSettings();
     Dialogs.cancelModalDialogIfOpen("ftp-dialog");
     
   }
