@@ -20,7 +20,9 @@ FTP.prototype.connect = function(opts, cb) {
   var self = this;
   this.ftp = new this.JSFtp(opts);
   this.lastSyncDate = opts.lastSyncDate;
-  console.log("Set last sync date to " + this.lastSyncDate);
+  this.lastSyncDateAsDate = new Date(opts.lastSyncDate);
+  
+  console.log("Set last sync date to " + this.lastSyncDateAsDate);
   
   this.ftp.auth(opts.user, opts.pwd, function(err, data) {
     if (err) {
@@ -52,21 +54,20 @@ FTP.prototype.stat = function(remotePath, cb) {
 };
 
 FTP.prototype.exists = function(localPath, remotePath, cb) {
-  var self = this;
-
   // Get information about the local file
   var fsInfo = fs.statSync(localPath);
   var size = fsInfo.size;
   
   //  Treat the file as if it exists if it hasn't been modified since the last sync date
-  if (fsInfo.mtime.getTime() <= self.lastSyncDate) {
+  if (fsInfo.mtime.getTime() <= this.lastSyncDate) {
       return cb(true);
   }
   else {
-    console.log("File " + localPath + " modified since last sync on " + fsInfo.mtime);
+    console.log("File " + localPath + " modified on " + fsInfo.mtime + "; after last sync on " + this.lastSyncDateAsDate);
+    return cb(false);
   }
   
-  var escapedRemotePath = remotePath.replace(/\s/g, "\\ ");
+  /*var escapedRemotePath = remotePath.replace(/\s/g, "\\ ");
   // stat whether same size file exists or not
   this.ftp.ls(escapedRemotePath, function(err, data) {
     if (err) return cb(err);
@@ -75,7 +76,7 @@ FTP.prototype.exists = function(localPath, remotePath, cb) {
     //  Compare local and remote file sizes
     if (size === parseInt(data[0].size, 10)) return cb(true);
     cb(false);
-  });
+  });*/
 };
 
 FTP.prototype.put = function(localPath, remotePath, cb) {
