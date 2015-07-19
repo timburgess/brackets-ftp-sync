@@ -1,8 +1,7 @@
 .DS_Store
 build
 .ftpsync_settings
-src/node/node_modules/jsftp/node_modules
 src/node/node_modules/jsftp/test
+src/node/node_modules/ssh2/test
 src/node/test/node_modules
 src/node/test/config.json
-node_modules
