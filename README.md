@@ -1,6 +1,6 @@
 # An FTP/SFTP client for Adobe Brackets
 
----
+
 ## FTP-Sync is no longer under active development.
 Thankyou all for the feedback and use of FTP-Sync. FTP-Sync was a personal project of mine to see what was involved in writing an FTP/SFTP client in 100% Javascript and indeed, after quite a bit of thought and experimentation, it was possible. It was a learning step for me in becoming a full-time Javascript developer.
 
@@ -9,7 +9,9 @@ However for the last few months I simply don't have the personal bandwidth to ma
 This repo will remain here in perpetuity so feel free to fork/copy it but there will be no more active development. I will leave the issues open in the event that interested parties wish to communicate.
 
 Tim Burgess
-___
+
+
+
 
 FTP-Sync provides a simple straightforward means of synchronizing your project changes in Brackets with a remote FTP or SFTP server
 
